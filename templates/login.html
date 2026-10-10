@@ -36,24 +36,26 @@
 
       <h1 class="login-card__title">Вход для врача</h1>
 
-      <form action="/patients/" method="get">
-        <div class="field">
-          <label class="field__label" for="login">Логин или электронная почта</label>
-          <input class="input" type="text" id="login" name="login" required>
-        </div>
+      <form id="loginForm">
+  <div class="field">
+    <label class="field__label" for="login">Логин или электронная почта</label>
+    <input class="input" type="text" id="login" name="login" required>
+  </div>
 
-        <div class="field">
-          <label class="field__label" for="password">Пароль</label>
-          <div class="input-wrap">
-            <input class="input" type="password" id="password" name="password" required>
-            <button type="button" class="input-wrap__btn" aria-label="Показать пароль">
-              <span class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
-            </button>
-          </div>
-        </div>
+  <div class="field">
+    <label class="field__label" for="password">Пароль</label>
+    <div class="input-wrap">
+      <input class="input" type="password" id="password" name="password" required>
+      <button type="button" class="input-wrap__btn" aria-label="Показать пароль">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </button>
+    </div>
+  </div>
 
-        <button type="submit" class="btn btn--primary btn--block" style="margin-top:8px;">Войти</button>
-      </form>
+  <button type="submit" class="btn btn--primary btn--block" style="margin-top:8px;">Войти</button>
+</form>
+
+<p id="loginError" style="color:var(--coral, #EF5B5B);font-size:13px;margin-top:12px;text-align:center;min-height:18px;"></p>
 
       <a href="#" class="login-card__forgot">Забыли пароль?</a>
 
@@ -62,5 +64,39 @@
       </p>
     </div>
   </div>
+<script>
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const login = document.getElementById("login").value.trim();
+    const password = document.getElementById("password").value;
+    const errEl = document.getElementById("loginError");
+    errEl.textContent = "";
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/auth/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,
+        { method: "POST" }
+      );
+
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        throw new Error(detail.detail || "Неверный логин или пароль");
+      }
+
+      const data = await res.json();
+
+      // Сохраняем токен и данные врача
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("doctorName", data.doctor.full_name);
+      localStorage.setItem("doctorSpecialty", data.doctor.specialty || "");
+
+      // Переходим на список пациентов
+      window.location.href = "/patients/";
+    } catch (err) {
+      errEl.textContent = err.message;
+    }
+  });
+</script>
 </body>
 </html>

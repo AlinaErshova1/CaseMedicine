@@ -27,11 +27,28 @@
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
     </div>
     <div class="user-info">
-      <div class="user-info__name">Иванова Анна Андреевна</div>
+      <div class="user-info__name" id="doctorName">Врач</div>
       <div class="user-info__role">Врач</div>
     </div>
-    <a href="/login/" class="btn-logout" title="Выйти">
+    <a href="#" class="btn-logout" id="logoutBtn" title="Выйти">
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
     </a>
   </div>
 </aside>
+<script>
+  // Имя врача (используем var, чтобы не конфликтовать с другими скриптами)
+  var sidebarNameEl = document.getElementById("doctorName");
+  if (sidebarNameEl) {
+    sidebarNameEl.textContent = localStorage.getItem("doctorName") || "Врач";
+  }
+
+  // Выход
+  var sidebarLogoutBtn = document.getElementById("logoutBtn");
+  if (sidebarLogoutBtn) {
+    sidebarLogoutBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      localStorage.clear();
+      window.location.href = "/login/";
+    });
+  }
+</script>

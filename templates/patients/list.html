@@ -46,24 +46,70 @@
 
 <h2 style="font-size:15px;font-weight:600;margin-bottom:14px;">Все пациенты</h2>
 
-<section class="patient-list">
-  {% for p in patients %}
-    <a href="/patients/{{ p.id }}/" class="patient-row">
-      <div class="patient-row__avatar">
-        <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-      </div>
-      <div class="patient-row__info">
-        <div class="patient-row__name">{{ p.name }}</div>
-      </div>
-      {% if p.status == 'success' %}
-        <span class="badge badge--success">Завершён</span>
-      {% elif p.status == 'warning' %}
-        <span class="badge badge--warning">Внимание</span>
-      {% else %}
-        <span class="badge badge--neutral">Нет данных</span>
-      {% endif %}
-      <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
-    </a>
-  {% endfor %}
+<section class="patient-list" id="patientList">
+  <p class="text-secondary">Загрузка…</p>
 </section>
+
+<script>
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/login/";
+  }
+
+  // Имя врача в сайдбаре
+  const nameEl = document.getElementById("doctorName");
+  if (nameEl) {
+    nameEl.textContent = localStorage.getItem("doctorName") || "Врач";
+  }
+
+  function statusBadge(prediction) {
+    if (!prediction) return '<span class="badge badge--neutral">Нет данных</span>';
+    if (prediction === "no_tumor") return '<span class="badge badge--success">Норма</span>';
+    if (prediction === "glioma" || prediction === "meningioma" || prediction === "pituitary")
+      return '<span class="badge badge--warning">Обнаружено</span>';
+    return '<span class="badge badge--neutral">—</span>';
+  }
+
+  async function loadPatients() {
+    const listEl = document.getElementById("patientList");
+    try {
+      const res = await fetch("http://localhost:8000/patients", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+
+      if (!res.ok) throw new Error("Ошибка загрузки");
+
+      const patients = await res.json();
+      if (!patients.length) {
+        listEl.innerHTML = '<p class="text-secondary">Нет пациентов</p>';
+        return;
+      }
+
+      listEl.innerHTML = patients.map(p => `
+        <a href="/patients/${p.id}/" class="patient-row">
+          <div class="patient-row__avatar">
+            <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          </div>
+          <div class="patient-row__info">
+            <div class="patient-row__name">${p.full_name}</div>
+            <div class="patient-row__meta">${p.anonymized_code} · ${p.age ?? "—"} лет</div>
+          </div>
+          ${statusBadge(p.last_prediction)}
+          <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+      `).join("");
+    } catch (err) {
+      listEl.innerHTML = `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  loadPatients();
+</script>
+
 {% endblock %}

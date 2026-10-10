@@ -1,10 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Карточка пациента — AI-MRI{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<a href="/patients/" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+  ← Назад к списку
+</a>
+
+<header class="page-header">
+  <h1 class="page-title" id="patientName">Загрузка…</h1>
+  <p class="page-subtitle" id="patientMeta"></p>
+</header>
+
+<div id="patientContent">
+  <p class="text-secondary">Загрузка данных…</p>
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000";
+  const token = localStorage.getItem("token");
+  if (!token) window.location.href = "/login/";
+
+  // patient_id передан через шаблон
+  const patientId = "{{ patient_id }}";
+
+  async function loadPatient() {
+    try {
+      const res = await fetch(`${API_URL}/patients/${patientId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+      if (!res.ok) throw new Error("Пациент не найден");
+
+      const p = await res.json();
+
+      document.getElementById("patientName").textContent = p.full_name;
+      document.getElementById("patientMeta").textContent =
+        `${p.anonymized_code} · ${p.age ?? "—"} лет · ${p.sex === "M" ? "Мужской" : "Женский"}`;
+
+      document.getElementById("patientContent").innerHTML = `
+        <div class="card">
+          <h2 class="card__title">Основная информация</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+            ${field("ФИО", p.full_name)}
+            ${field("Дата рождения", p.birth_date)}
+            ${field("Возраст", (p.age ?? "—") + " лет")}
+            ${field("Пол", p.sex === "M" ? "Мужской" : "Женский")}
+            ${field("ID пациента", p.anonymized_code)}
+            ${field("Полис ОМС", p.policy_oms)}
+            ${field("Группа крови", p.blood_type)}
+            ${field("Рост и вес", `${p.height_cm ?? "—"} см · ${p.weight_kg ?? "—"} кг`)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Контакты</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+            ${field("Телефон", p.phone)}
+            ${field("Электронная почта", p.email)}
+            ${field("Адрес", p.address)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Медицинская информация</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+            ${field("Лечащий врач", p.attending_doctor)}
+            ${field("Причина обращения", p.reason)}
+            ${field("Жалобы", p.complaints)}
+            ${field("Аллергии", p.allergies)}
+            ${field("Дата регистрации", p.created_at)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Исследования</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+            ${field("Всего ИИ-анализов", p.studies_stats.total)}
+            ${field("Первое исследование", p.studies_stats.first_date)}
+            ${field("Последнее исследование", p.studies_stats.last_date)}
+            ${field("Результат последнего анализа", humanPrediction(p.studies_stats.last_prediction))}
+            ${field("Вероятность обнаружения", p.studies_stats.last_confidence != null
+              ? Math.round(p.studies_stats.last_confidence * 100) + "%"
+              : "—")}
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById("patientContent").innerHTML =
+        `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  function field(label, value) {
+    return `
+      <div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">${label}</div>
+        <div style="font-size:14px;font-weight:500;color:var(--text-primary);">${value ?? "—"}</div>
+      </div>
+    `;
+  }
+
+  function humanPrediction(pred) {
+    if (!pred) return "—";
+    return {
+      "glioma": "Глиома",
+      "meningioma": "Менингиома",
+      "pituitary": "Опухоль гипофиза",
+      "no_tumor": "Опухоль не обнаружена",
+    }[pred] || pred;
+  }
+
+  loadPatient();
+</script>
+{% endblock %}
