@@ -9,3 +9,207 @@
 {"timestamp": "2026-10-10T13:04:44.132417Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
 {"timestamp": "2026-10-10T13:04:45.578216Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
 {"timestamp": "2026-10-10T13:04:49.378049Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-10T14:32:45.899779Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=doctor1"}
+{"timestamp": "2026-10-10T14:32:46.407900Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=doctor1"}
+{"timestamp": "2026-10-10T14:32:50.009270Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-10T14:32:50.126932Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-10T14:32:54.580887Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:42:02.483852Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-11T14:42:02.568201Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:44:58.385748Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:44:58.424655Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:45:43.568750Z", "level": "INFO", "action": "upload_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=e186d0d4-87b8-4a20-a426-d24c8dd4a35c"}
+{"timestamp": "2026-10-11T14:45:43.576251Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:45:50.802172Z", "level": "INFO", "action": "analyze_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=e186d0d4-87b8-4a20-a426-d24c8dd4a35c"}
+{"timestamp": "2026-10-11T14:45:50.811240Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:46:07.506213Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:46:09.963589Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:46:09.983363Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:46:17.282566Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-11T14:46:17.372873Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:46:35.035043Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-11T14:46:35.132063Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:46:36.635851Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:46:36.654852Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:55:29.430607Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-11T14:55:29.494991Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:55:30.804940Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:55:30.822239Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:55:54.543244Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admin"}
+{"timestamp": "2026-10-11T14:56:01.186386Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admin"}
+{"timestamp": "2026-10-11T14:56:12.000438Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admin"}
+{"timestamp": "2026-10-11T14:57:43.858550Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "login=doctor1"}
+{"timestamp": "2026-10-11T14:57:43.947278Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:57:45.421283Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:57:45.438040Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:58:07.802406Z", "level": "INFO", "action": "upload_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=3cd67fcc-9bd1-4d0a-b95f-faeee9cede02"}
+{"timestamp": "2026-10-11T14:58:07.815070Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:58:11.355777Z", "level": "INFO", "action": "analyze_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=3cd67fcc-9bd1-4d0a-b95f-faeee9cede02"}
+{"timestamp": "2026-10-11T14:58:11.363481Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T14:58:20.876482Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T14:58:40.548360Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admin"}
+{"timestamp": "2026-10-11T15:17:51.438922Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T15:29:37.600451Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admin"}
+{"timestamp": "2026-10-11T15:30:02.032449Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T15:37:00.763197Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:37:04.328531Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:37:38.809865Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T15:37:38.886311Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:37:54.830336Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:37:56.178347Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:37:56.200718Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:38:44.383605Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:38:46.465613Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:41:06.027201Z", "level": "INFO", "action": "toggle_doctor_active", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "doctor_id=713d59eb-1368-4fb9-af32-dd7e47bfa7ae is_active=False"}
+{"timestamp": "2026-10-11T15:41:06.042675Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:41:14.805810Z", "level": "INFO", "action": "toggle_doctor_active", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "doctor_id=713d59eb-1368-4fb9-af32-dd7e47bfa7ae is_active=True"}
+{"timestamp": "2026-10-11T15:41:14.822485Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:41:17.583784Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:41:20.709437Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:41:20.721752Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:42:01.159693Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:46:12.996448Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:46:13.015299Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:46:20.396378Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:46:31.764216Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T15:46:31.840583Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T15:46:34.406971Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:46:34.422002Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T15:46:41.065783Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T15:57:25.795216Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admina"}
+{"timestamp": "2026-10-11T15:57:26.953507Z", "level": "INFO", "action": "login_failed", "user_id": null, "details": "login=admina"}
+{"timestamp": "2026-10-11T15:57:30.448123Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T15:59:09.866102Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:59:17.649489Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T15:59:21.913413Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T15:59:50.329675Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:04:19.786840Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:19.813794Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:27.656514Z", "level": "INFO", "action": "delete_study", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "study_id=b9921abb-0868-4530-ab28-70baa8cfdd33"}
+{"timestamp": "2026-10-11T16:04:27.683614Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:31.116959Z", "level": "INFO", "action": "delete_study", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "study_id=382df746-1db1-4c4d-968f-a2c8d94f5fbe"}
+{"timestamp": "2026-10-11T16:04:31.139775Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:33.400560Z", "level": "INFO", "action": "delete_study", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "study_id=da609a78-7d5d-41b5-9a73-2730e5cb2456"}
+{"timestamp": "2026-10-11T16:04:33.417677Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:48.854512Z", "level": "INFO", "action": "update_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:04:48.879316Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:05:14.316493Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:05:15.574353Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:05:16.036562Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:05:22.730185Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:06:20.326249Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:06:21.852415Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:06:21.870410Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:08:00.141858Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T16:08:00.339039Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T16:08:02.557898Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:08:02.586423Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:08:35.220689Z", "level": "INFO", "action": "upload_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=59079403-9818-47a2-867c-74d0ea2f0b11"}
+{"timestamp": "2026-10-11T16:08:35.232788Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:08:37.895522Z", "level": "INFO", "action": "analyze_study", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "study_id=59079403-9818-47a2-867c-74d0ea2f0b11"}
+{"timestamp": "2026-10-11T16:08:37.907591Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:08:53.151187Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T16:09:08.452326Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T16:09:08.572737Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:09:14.962416Z", "level": "INFO", "action": "toggle_doctor_active", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "doctor_id=713d59eb-1368-4fb9-af32-dd7e47bfa7ae is_active=False"}
+{"timestamp": "2026-10-11T16:09:14.980897Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:09:18.758325Z", "level": "INFO", "action": "toggle_doctor_active", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "doctor_id=713d59eb-1368-4fb9-af32-dd7e47bfa7ae is_active=True"}
+{"timestamp": "2026-10-11T16:09:18.771249Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:09:32.324465Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:09:33.629386Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:09:33.643317Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:09:55.634312Z", "level": "INFO", "action": "delete_study", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "study_id=59079403-9818-47a2-867c-74d0ea2f0b11"}
+{"timestamp": "2026-10-11T16:09:55.647600Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:10:09.341498Z", "level": "INFO", "action": "list_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=0"}
+{"timestamp": "2026-10-11T16:10:12.527124Z", "level": "INFO", "action": "list_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=0"}
+{"timestamp": "2026-10-11T16:10:16.343408Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:10:17.646603Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:10:23.609397Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:10:23.634126Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:10:25.061083Z", "level": "INFO", "action": "list_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=0"}
+{"timestamp": "2026-10-11T16:10:32.444621Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:10:35.826777Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:10:35.847078Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:10:36.869428Z", "level": "INFO", "action": "list_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=0"}
+{"timestamp": "2026-10-11T16:11:02.774861Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:11:08.025310Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T16:11:08.126123Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T16:11:55.980585Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T16:11:56.105012Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:11:58.144835Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:12:03.955046Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:12:03.975898Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:12:04.965773Z", "level": "INFO", "action": "list_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=0"}
+{"timestamp": "2026-10-11T16:13:47.854576Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:18:47.170315Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:18:47.170315Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:18:51.968190Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:18:52.001533Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:20:53.154122Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:20:54.668898Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:20:54.693324Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:29:41.859570Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:29:43.015461Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:29:43.038252Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:29:53.113902Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:29:54.222634Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:29:55.317051Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:29:55.340985Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:37:16.344878Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:37:16.826336Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:37:17.643854Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:37:17.660557Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:37:33.095456Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T16:37:33.192683Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:37:34.826543Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:37:36.100165Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:37:36.114967Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:39:20.329557Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:39:21.122574Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:39:21.153468Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:40:59.395207Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T16:44:01.820946Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:44:02.876308Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:44:02.896202Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:52:10.741496Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T16:52:10.860873Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T16:52:12.694345Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T16:52:14.453183Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T16:52:14.469312Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T18:59:31.750597Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T18:59:33.402577Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T18:59:33.421370Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:02:05.831319Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:02:06.908386Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:02:08.109305Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:02:08.122235Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:02:09.519508Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:02:13.607308Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T19:02:15.259461Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:02:26.472067Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T19:12:41.361473Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T19:13:39.787923Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T19:15:05.111138Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T19:15:35.984757Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T19:15:36.087800Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T19:15:38.054569Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:15:39.069309Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:15:39.092229Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:15:39.929827Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:15:40.670074Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:15:40.687484Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:00.360860Z", "level": "INFO", "action": "login_success", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "role=doctor login=doctor1"}
+{"timestamp": "2026-10-11T19:17:00.427995Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T19:17:08.407114Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:08.425183Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:12.566567Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T19:17:19.876855Z", "level": "INFO", "action": "view_patient", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:19.895325Z", "level": "INFO", "action": "list_studies", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:21.541208Z", "level": "INFO", "action": "list_patients", "user_id": "89a88ac4-0270-41b5-b496-eabd211fbae0", "details": "count=1"}
+{"timestamp": "2026-10-11T19:17:38.906612Z", "level": "INFO", "action": "login_success", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "role=admin login=admin"}
+{"timestamp": "2026-10-11T19:17:39.017607Z", "level": "INFO", "action": "list_doctors", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=2"}
+{"timestamp": "2026-10-11T19:17:40.267343Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:17:42.043257Z", "level": "INFO", "action": "view_patient", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:42.056444Z", "level": "INFO", "action": "list_studies", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "patient_id=68769080-05c8-4da7-8b59-5c4a227326e0"}
+{"timestamp": "2026-10-11T19:17:43.662141Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}
+{"timestamp": "2026-10-11T19:24:30.858926Z", "level": "INFO", "action": "list_all_patients", "user_id": "374d61f4-eff5-49ed-835d-3fcae310669d", "details": "count=1"}

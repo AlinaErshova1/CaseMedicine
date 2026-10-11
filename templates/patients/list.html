@@ -9,39 +9,39 @@
 
 <div class="search">
   <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
-  <input class="input" type="search" placeholder="Поиск по фамилии, паспорту пациента">
+  <input class="input" type="search" id="searchInput" placeholder="Поиск по фамилии, ID пациента">
 </div>
 
-<nav class="alpha-filter">
-  <span class="alpha-filter__item alpha-filter__item--active">Все</span>
-  <span class="alpha-filter__item">А</span>
-  <span class="alpha-filter__item">Б</span>
-  <span class="alpha-filter__item">В</span>
-  <span class="alpha-filter__item">Г</span>
-  <span class="alpha-filter__item">Д</span>
-  <span class="alpha-filter__item">Е</span>
-  <span class="alpha-filter__item">Ж</span>
-  <span class="alpha-filter__item">З</span>
-  <span class="alpha-filter__item">И</span>
-  <span class="alpha-filter__item">К</span>
-  <span class="alpha-filter__item">Л</span>
-  <span class="alpha-filter__item">М</span>
-  <span class="alpha-filter__item">Н</span>
-  <span class="alpha-filter__item">О</span>
-  <span class="alpha-filter__item">П</span>
-  <span class="alpha-filter__item">Р</span>
-  <span class="alpha-filter__item">С</span>
-  <span class="alpha-filter__item">Т</span>
-  <span class="alpha-filter__item">У</span>
-  <span class="alpha-filter__item">Ф</span>
-  <span class="alpha-filter__item">Х</span>
-  <span class="alpha-filter__item">Ц</span>
-  <span class="alpha-filter__item">Ч</span>
-  <span class="alpha-filter__item">Ш</span>
-  <span class="alpha-filter__item">Щ</span>
-  <span class="alpha-filter__item">Э</span>
-  <span class="alpha-filter__item">Ю</span>
-  <span class="alpha-filter__item">Я</span>
+<nav class="alpha-filter" id="alphaFilter">
+  <span class="alpha-filter__item alpha-filter__item--active" data-letter="all">Все</span>
+  <span class="alpha-filter__item" data-letter="А">А</span>
+  <span class="alpha-filter__item" data-letter="Б">Б</span>
+  <span class="alpha-filter__item" data-letter="В">В</span>
+  <span class="alpha-filter__item" data-letter="Г">Г</span>
+  <span class="alpha-filter__item" data-letter="Д">Д</span>
+  <span class="alpha-filter__item" data-letter="Е">Е</span>
+  <span class="alpha-filter__item" data-letter="Ж">Ж</span>
+  <span class="alpha-filter__item" data-letter="З">З</span>
+  <span class="alpha-filter__item" data-letter="И">И</span>
+  <span class="alpha-filter__item" data-letter="К">К</span>
+  <span class="alpha-filter__item" data-letter="Л">Л</span>
+  <span class="alpha-filter__item" data-letter="М">М</span>
+  <span class="alpha-filter__item" data-letter="Н">Н</span>
+  <span class="alpha-filter__item" data-letter="О">О</span>
+  <span class="alpha-filter__item" data-letter="П">П</span>
+  <span class="alpha-filter__item" data-letter="Р">Р</span>
+  <span class="alpha-filter__item" data-letter="С">С</span>
+  <span class="alpha-filter__item" data-letter="Т">Т</span>
+  <span class="alpha-filter__item" data-letter="У">У</span>
+  <span class="alpha-filter__item" data-letter="Ф">Ф</span>
+  <span class="alpha-filter__item" data-letter="Х">Х</span>
+  <span class="alpha-filter__item" data-letter="Ц">Ц</span>
+  <span class="alpha-filter__item" data-letter="Ч">Ч</span>
+  <span class="alpha-filter__item" data-letter="Ш">Ш</span>
+  <span class="alpha-filter__item" data-letter="Щ">Щ</span>
+  <span class="alpha-filter__item" data-letter="Э">Э</span>
+  <span class="alpha-filter__item" data-letter="Ю">Ю</span>
+  <span class="alpha-filter__item" data-letter="Я">Я</span>
 </nav>
 
 <h2 style="font-size:15px;font-weight:600;margin-bottom:14px;">Все пациенты</h2>
@@ -51,16 +51,14 @@
 </section>
 
 <script>
+  const API_URL = "http://localhost:8000";
   const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "/login/";
-  }
+  const listRole = localStorage.getItem("role") || "doctor";
+  if (!token) window.location.href = "/login/";
 
-  // Имя врача в сайдбаре
-  const nameEl = document.getElementById("doctorName");
-  if (nameEl) {
-    nameEl.textContent = localStorage.getItem("doctorName") || "Врач";
-  }
+  let allPatients = [];
+  let activeLetter = "all";
+  let searchQuery = "";
 
   function statusBadge(prediction) {
     if (!prediction) return '<span class="badge badge--neutral">Нет данных</span>';
@@ -70,46 +68,87 @@
     return '<span class="badge badge--neutral">—</span>';
   }
 
-  async function loadPatients() {
+  function applyFilters() {
+    let filtered = allPatients;
+
+    if (activeLetter !== "all") {
+      filtered = filtered.filter(p => {
+        const name = (p.full_name || "").trim();
+        if (!name) return false;
+        return name[0].toUpperCase() === activeLetter;
+      });
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(p =>
+        (p.full_name || "").toLowerCase().includes(q) ||
+        (p.anonymized_code || "").toLowerCase().includes(q)
+      );
+    }
+
+    renderPatients(filtered);
+  }
+
+  function renderPatients(patients) {
     const listEl = document.getElementById("patientList");
+    if (!patients.length) {
+      listEl.innerHTML = '<p class="text-secondary">Нет пациентов</p>';
+      return;
+    }
+    listEl.innerHTML = patients.map(p => `
+      <a href="/patients/${p.id}/" class="patient-row">
+        <div class="patient-row__avatar">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        </div>
+        <div class="patient-row__info">
+          <div class="patient-row__name">${p.full_name}</div>
+          <div class="patient-row__meta">${p.anonymized_code} · ${p.age ?? "—"} лет</div>
+        </div>
+        ${statusBadge(p.last_prediction)}
+        <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+    `).join("");
+  }
+
+  async function loadPatients() {
+    const endpoint = listRole === "admin"
+      ? `${API_URL}/admin/patients`
+      : `${API_URL}/patients`;
+
     try {
-      const res = await fetch("http://localhost:8000/patients", {
+      const res = await fetch(endpoint, {
         headers: { "Authorization": `Bearer ${token}` }
       });
-
       if (res.status === 401) {
         localStorage.clear();
         window.location.href = "/login/";
         return;
       }
-
-      if (!res.ok) throw new Error("Ошибка загрузки");
-
-      const patients = await res.json();
-      if (!patients.length) {
-        listEl.innerHTML = '<p class="text-secondary">Нет пациентов</p>';
-        return;
-      }
-
-      listEl.innerHTML = patients.map(p => `
-        <a href="/patients/${p.id}/" class="patient-row">
-          <div class="patient-row__avatar">
-            <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-          </div>
-          <div class="patient-row__info">
-            <div class="patient-row__name">${p.full_name}</div>
-            <div class="patient-row__meta">${p.anonymized_code} · ${p.age ?? "—"} лет</div>
-          </div>
-          ${statusBadge(p.last_prediction)}
-          <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
-        </a>
-      `).join("");
+      if (!res.ok) throw new Error(`Ошибка ${res.status}`);
+      allPatients = await res.json();
+      applyFilters();
     } catch (err) {
-      listEl.innerHTML = `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+      document.getElementById("patientList").innerHTML =
+        `<p class="text-secondary">Ошибка: ${err.message}</p>`;
     }
   }
 
+  document.querySelectorAll("#alphaFilter .alpha-filter__item").forEach(el => {
+    el.addEventListener("click", () => {
+      document.querySelectorAll("#alphaFilter .alpha-filter__item").forEach(x =>
+        x.classList.remove("alpha-filter__item--active"));
+      el.classList.add("alpha-filter__item--active");
+      activeLetter = el.dataset.letter;
+      applyFilters();
+    });
+  });
+
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    applyFilters();
+  });
+
   loadPatients();
 </script>
-
 {% endblock %}

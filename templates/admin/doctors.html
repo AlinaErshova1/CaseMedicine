@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% block title %}Врачи — AI-MRI{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">Врачи</h1>
+  <p class="page-subtitle">Управление учётными записями врачей.</p>
+</header>
+
+<div class="card">
+  <h2 class="card__title">Добавить нового врача</h2>
+  <form id="createDoctorForm" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:700px;">
+    <input class="input" id="fullName" placeholder="ФИО" required>
+    <input class="input" id="login" placeholder="Логин" required>
+    <input class="input" id="password" type="password" placeholder="Пароль" required>
+    <input class="input" id="specialty" placeholder="Специальность (например, Невролог)">
+    <input class="input" id="hospital" placeholder="Больница">
+    <button class="btn btn--primary" type="submit">Создать врача</button>
+  </form>
+  <p id="formStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
+</div>
+
+<div class="card">
+  <h2 class="card__title">Все врачи</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:14px;" id="doctorsTable">
+    <thead>
+      <tr style="text-align:left;border-bottom:1px solid var(--border);">
+        <th style="padding:10px 0;">ФИО</th>
+        <th>Логин</th>
+        <th>Специальность</th>
+        <th>Больница</th>
+        <th>Статус</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="6" style="padding:20px 0;" class="text-secondary">Загрузка…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="editDoctorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:24px;border-radius:12px;max-width:500px;width:90%;">
+    <h3 style="margin-bottom:16px;">Редактировать врача</h3>
+    <input type="hidden" id="editDoctorId">
+    <div style="display:grid;gap:12px;">
+      <input class="input" id="editFullName" placeholder="ФИО">
+      <input class="input" id="editSpecialty" placeholder="Специальность">
+      <input class="input" id="editHospital" placeholder="Больница">
+      <input class="input" id="editPassword" type="password" placeholder="Новый пароль (оставь пустым, если не менять)">
+    </div>
+    <p id="editDoctorStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+      <button class="btn btn--secondary" onclick="closeEditDoctor()">Отмена</button>
+      <button class="btn btn--primary" onclick="saveDoctor()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000";
+  let doctorsCache = [];
+  const adminToken = localStorage.getItem("token");
+  const adminRole = localStorage.getItem("role");
+  if (!adminToken) window.location.href = "/login/";
+  if (adminRole !== "admin") window.location.href = "/patients/";
+  async function loadDoctors() {
+    const tbody = document.querySelector("#doctorsTable tbody");
+    try {
+      const res = await fetch(`${API_URL}/admin/doctors`, {
+        headers: { "Authorization": `Bearer ${adminToken}` }
+      });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+      const doctors = await res.json();
+      doctorsCache = doctors;
+      if (!doctors.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-secondary">Нет врачей</td></tr>';
+        return;
+      }
+      tbody.innerHTML = doctors.map(d => `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:12px 0;">${d.full_name}</td>
+          <td>${d.login}</td>
+          <td>${d.specialty ?? "—"}</td>
+          <td>${d.hospital ?? "—"}</td>
+          <td>
+            <span class="badge badge--${d.is_active ? 'success' : 'neutral'}">
+              ${d.is_active ? 'Активен' : 'Отключён'}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn--secondary" style="font-size:12px;" onclick="toggleActive('${d.id}')">
+              ${d.is_active ? 'Отключить' : 'Включить'}
+            </button>
+            <button class="btn btn--secondary" style="font-size:12px;margin-left:6px;" onclick="editDoctor('${d.id}')">
+              Редактировать
+            </button>
+          </td>
+        </tr>
+      `).join("");
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-secondary">Ошибка: ${err.message}</td></tr>`;
+    }
+  }
+  function editDoctor(doctorId) {
+  const d = doctorsCache.find(x => x.id === doctorId);
+  if (!d) return;
+  document.getElementById("editDoctorId").value = d.id;
+  document.getElementById("editFullName").value = d.full_name || "";
+  document.getElementById("editSpecialty").value = d.specialty || "";
+  document.getElementById("editHospital").value = d.hospital || "";
+  document.getElementById("editPassword").value = "";
+  document.getElementById("editDoctorStatus").textContent = "";
+  document.getElementById("editDoctorModal").style.display = "flex";
+}
+
+function closeEditDoctor() {
+  document.getElementById("editDoctorModal").style.display = "none";
+}
+
+async function saveDoctor() {
+  const id = document.getElementById("editDoctorId").value;
+  const statusEl = document.getElementById("editDoctorStatus");
+  statusEl.textContent = "Сохранение...";
+  statusEl.style.color = "var(--text-secondary)";
+
+  const payload = {
+    full_name: document.getElementById("editFullName").value.trim() || null,
+    specialty: document.getElementById("editSpecialty").value.trim() || null,
+    hospital: document.getElementById("editHospital").value.trim() || null,
+    password: document.getElementById("editPassword").value || null,
+  };
+
+  try {
+    const res = await fetch(`${API_URL}/admin/doctors/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${adminToken}`
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || "Ошибка сохранения");
+    }
+    statusEl.textContent = "Сохранено";
+    statusEl.style.color = "var(--success)";
+    await loadDoctors();
+    setTimeout(closeEditDoctor, 500);
+  } catch (err) {
+    statusEl.textContent = `Ошибка: ${err.message}`;
+    statusEl.style.color = "var(--coral)";
+  }
+}
+
+// Закрытие по клику вне окна
+document.getElementById("editDoctorModal").addEventListener("click", (e) => {
+  if (e.target.id === "editDoctorModal") closeEditDoctor();
+});
+
+  document.getElementById("createDoctorForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const statusEl = document.getElementById("formStatus");
+    statusEl.textContent = "Создание...";
+    statusEl.style.color = "var(--text-secondary)";
+
+    const payload = {
+      full_name: document.getElementById("fullName").value.trim(),
+      login: document.getElementById("login").value.trim(),
+      password: document.getElementById("password").value,
+      specialty: document.getElementById("specialty").value.trim() || null,
+      hospital: document.getElementById("hospital").value.trim() || null,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/admin/doctors`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Ошибка создания");
+      }
+      statusEl.textContent = "Врач создан";
+      statusEl.style.color = "var(--success)";
+      document.getElementById("createDoctorForm").reset();
+      await loadDoctors();
+    } catch (err) {
+      statusEl.textContent = `Ошибка: ${err.message}`;
+      statusEl.style.color = "var(--coral)";
+    }
+  });
+
+  async function toggleActive(doctorId) {
+    await fetch(`${API_URL}/admin/doctors/${doctorId}/toggle-active`, {
+      method: "PATCH",
+      headers: { "Authorization": `Bearer ${adminToken}` }
+    });
+    await loadDoctors();
+  }
+
+  loadDoctors();
+</script>
+
+<!-- Модальное окно редактирования врача -->
+
+{% endblock %}

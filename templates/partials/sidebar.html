@@ -12,11 +12,19 @@
   </div>
 
   <nav class="nav">
-    <a href="/patients/" class="nav__item nav__item--active">
+    <a href="/patients/" class="nav__item" data-role="doctor">
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
       Пациенты
     </a>
-    <a href="#" class="nav__item">
+    <a href="/admin-panel/doctors/" class="nav__item" data-role="admin">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      Врачи
+    </a>
+    <a href="/admin-panel/patients/" class="nav__item" data-role="admin">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      Все пациенты
+    </a>
+    <a href="#" class="nav__item" data-role="doctor">
       <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/></svg></span>
       Настройки
     </a>
@@ -27,25 +35,37 @@
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
     </div>
     <div class="user-info">
-      <div class="user-info__name" id="doctorName">Врач</div>
-      <div class="user-info__role">Врач</div>
+      <div class="user-info__name" id="userName">Пользователь</div>
+      <div class="user-info__role" id="userRole">—</div>
     </div>
     <a href="#" class="btn-logout" id="logoutBtn" title="Выйти">
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
     </a>
   </div>
 </aside>
+
 <script>
-  // Имя врача (используем var, чтобы не конфликтовать с другими скриптами)
-  var sidebarNameEl = document.getElementById("doctorName");
-  if (sidebarNameEl) {
-    sidebarNameEl.textContent = localStorage.getItem("doctorName") || "Врач";
+  // === 1. Имя и роль текущего пользователя ===
+  const role = localStorage.getItem("role") || "doctor";
+  const userName = localStorage.getItem("userName") || "Пользователь";
+
+  const nameEl = document.getElementById("userName");
+  if (nameEl) nameEl.textContent = userName;
+
+  const roleEl = document.getElementById("userRole");
+  if (roleEl) {
+    roleEl.textContent = role === "admin" ? "Администратор" : "Врач";
   }
 
-  // Выход
-  var sidebarLogoutBtn = document.getElementById("logoutBtn");
-  if (sidebarLogoutBtn) {
-    sidebarLogoutBtn.addEventListener("click", function (e) {
+  // === 2. Скрываем пункты меню, недоступные текущей роли ===
+  document.querySelectorAll("[data-role]").forEach(el => {
+    if (el.dataset.role !== role) el.style.display = "none";
+  });
+
+  // === 3. Кнопка "Выйти" ===
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
       localStorage.clear();
       window.location.href = "/login/";

@@ -86,13 +86,16 @@
 
       const data = await res.json();
 
-      // Сохраняем токен и данные врача
       localStorage.setItem("token", data.access_token);
-      localStorage.setItem("doctorName", data.doctor.full_name);
-      localStorage.setItem("doctorSpecialty", data.doctor.specialty || "");
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("userName", data.user.full_name);
+      localStorage.setItem("userSpecialty", data.user.specialty || "");
 
-      // Переходим на список пациентов
-      window.location.href = "/patients/";
+      if (data.role === "admin") {
+        window.location.href = "/admin-panel/doctors/";
+      } else {
+        window.location.href = "/patients/";
+      }
     } catch (err) {
       errEl.textContent = err.message;
     }

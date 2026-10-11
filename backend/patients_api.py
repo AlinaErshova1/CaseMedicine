@@ -7,6 +7,7 @@ from datetime import datetime, date
 import uuid
 
 
+
 def calculate_age(birth_date: date | None) -> int | None:
     if not birth_date:
         return None
@@ -144,6 +145,36 @@ def list_patients_for_doctor(db: Session, doctor_id: str, user_id: str = None):
     result = []
     for p in patients:
         # Последнее исследование
+        last_study = (
+            db.query(Study)
+            .filter(Study.patient_id == p.id)
+            .order_by(Study.created_at.desc())
+            .first()
+        )
+        result.append({
+            "id": str(p.id),
+            "anonymized_code": p.anonymized_code,
+            "full_name": decrypt_field(p.full_name_encrypted),
+            "birth_date": p.birth_date.isoformat() if p.birth_date else None,
+            "age": calculate_age(p.birth_date),
+            "sex": p.sex,
+            "last_prediction": last_study.prediction if last_study else None,
+            "last_confidence": last_study.confidence if last_study else None,
+        })
+    return result
+
+def list_all_patients(db, user_id: str = None):
+    """Список ВСЕХ пациентов (для админа)."""
+    patients = (
+        db.query(Patient)
+        .order_by(Patient.created_at.desc())
+        .all()
+    )
+
+    write_log("list_all_patients", user_id, f"count={len(patients)}")
+
+    result = []
+    for p in patients:
         last_study = (
             db.query(Study)
             .filter(Study.patient_id == p.id)

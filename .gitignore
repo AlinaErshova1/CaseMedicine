@@ -192,3 +192,5 @@ cython_debug/
 # Django
 media/
 staticfiles/
+
+backend/uploads/
