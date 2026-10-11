@@ -36,7 +36,11 @@ app = FastAPI(title="Medical AI Case API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8001",
+        "http://127.0.0.1:8001",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -303,6 +307,26 @@ def list_doctors(
         for d in doctors
     ]
 
+@app.get("/doctors")
+def list_doctors_public(
+    user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Краткий список активных врачей для выпадающего списка (доступен всем авторизованным)."""
+    doctors = (
+        db.query(Doctor)
+        .filter(Doctor.is_active == True)
+        .order_by(Doctor.full_name)
+        .all()
+    )
+    return [
+        {
+            "id": str(d.id),
+            "full_name": d.full_name,
+            "specialty": d.specialty,
+        }
+        for d in doctors
+    ]
 
 @app.post("/admin/doctors")
 def create_doctor(
@@ -577,3 +601,78 @@ def delete_doctor(
 
     write_log("delete_doctor", admin["user_id"], f"doctor_id={doctor_id}")
     return {"ok": True}
+
+class CreatePatientRequest(BaseModel):
+    full_name: str
+    sex: str                       # "M" или "F"
+    birth_date: str                # "1983-05-17"
+    phone: str | None = None
+    email: str | None = None
+    address: str | None = None
+    policy_oms: str | None = None
+    blood_type: str | None = None
+    height_cm: int | None = None
+    weight_kg: int | None = None
+    reason: str | None = None
+    complaints: str | None = None
+    allergies: str | None = None
+    doctor_id: str | None = None       # ← для админа: какого врача привязать
+
+
+@app.post("/patients")
+def create_new_patient(
+    payload: CreatePatientRequest,
+    user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Создание нового пациента. Доступно врачу и админу."""
+    from datetime import date as date_type
+    from patients_api import create_patient
+
+    try:
+        birth = date_type.fromisoformat(payload.birth_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Неверный формат даты")
+
+    # Определяем, к какому врачу привязать пациента
+    if user["role"] == "admin":
+        # Админ: берём doctor_id из формы
+        if not payload.doctor_id:
+            raise HTTPException(
+                status_code=400,
+                detail="Выберите лечащего врача"
+            )
+        # Проверяем, что врач существует
+        doctor = db.query(Doctor).filter(Doctor.id == payload.doctor_id).first()
+        if not doctor:
+            raise HTTPException(status_code=400, detail="Врач не найден")
+        creator_id = payload.doctor_id
+    else:
+        # Врач: привязываем к себе
+        creator_id = user["user_id"]
+
+    patient = create_patient(
+        db,
+        full_name=payload.full_name,
+        sex=payload.sex,
+        birth_date=birth,
+        doctor_id=creator_id,
+        phone=payload.phone,
+        email=payload.email,
+        address=payload.address,
+        policy_oms=payload.policy_oms,
+        blood_type=payload.blood_type,
+        height_cm=payload.height_cm,
+        weight_kg=payload.weight_kg,
+        reason=payload.reason,
+        complaints=payload.complaints,
+        allergies=payload.allergies,
+    )
+
+    write_log("create_patient_endpoint", user["user_id"], f"patient_id={patient.id}")
+
+    return {
+        "id": str(patient.id),
+        "anonymized_code": patient.anonymized_code,
+        "full_name": payload.full_name,
+    }
