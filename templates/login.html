@@ -46,7 +46,7 @@
     <label class="field__label" for="password">Пароль</label>
     <div class="input-wrap">
       <input class="input" type="password" id="password" name="password" required>
-      <button type="button" class="input-wrap__btn" aria-label="Показать пароль">
+      <button type="button" class="input-wrap__btn" id="togglePassword" aria-label="Показать пароль">
         <span class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
       </button>
     </div>
@@ -57,7 +57,11 @@
 
 <p id="loginError" style="color:var(--coral, #EF5B5B);font-size:13px;margin-top:12px;text-align:center;min-height:18px;"></p>
 
-      <a href="#" class="login-card__forgot">Забыли пароль?</a>
+      <a href="#" class="login-card__forgot" id="forgotPassword">Забыли пароль?</a>
+
+      <p id="forgotMessage" style="color:var(--coral);font-size:13px;margin-top:12px;text-align:center;min-height:18px;display:none;">
+        Обратитесь к администратору для сброса пароля
+      </p>
 
       <p class="login-card__footer">
         Система предназначена для использования медицинскими специалистами. Результаты AI-анализа не являются медицинским заключением.
@@ -65,6 +69,42 @@
     </div>
   </div>
 <script>
+  // === Показать/скрыть пароль ===
+document.getElementById("togglePassword").addEventListener("click", () => {
+  const passwordInput = document.getElementById("password");
+  const btn = document.getElementById("togglePassword");
+  const iconSpan = btn.querySelector(".icon");
+
+  if (passwordInput.type === "password") {
+    // Показать пароль
+    passwordInput.type = "text";
+    btn.setAttribute("aria-label", "Скрыть пароль");
+    // Меняем иконку: добавляем "перечёркнутый глаз"
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+      <circle cx="12" cy="12" r="3"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>`;
+  } else {
+    // Скрыть пароль
+    passwordInput.type = "password";
+    btn.setAttribute("aria-label", "Показать пароль");
+    // Возвращаем обычный глаз
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>`;
+  }
+});
+
+// === Забыли пароль? ===
+document.getElementById("forgotPassword").addEventListener("click", (e) => {
+  e.preventDefault();   // не даём ссылке никуда переходить
+  const msg = document.getElementById("forgotMessage");
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";              // скрываем предыдущую ошибку
+  msg.style.display = "block";          // показываем сообщение
+});
   document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 

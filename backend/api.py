@@ -19,6 +19,9 @@ from patients_api import list_patients_for_doctor, get_patient_full_info, list_a
 from security import verify_password, hash_password
 from logger import write_log
 
+from datetime import datetime, timezone, timedelta
+MSK = timezone(timedelta(hours=3))
+
 # === Конфигурация ===
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
 ALGORITHM = "HS256"
@@ -52,7 +55,7 @@ def create_token(user_id: str, role: str) -> str:
     payload = {
         "sub": str(user_id),
         "role": role,
-        "exp": datetime.utcnow() + timedelta(hours=TOKEN_EXPIRE_HOURS),
+        "exp": datetime.now(MSK) + timedelta(hours=TOKEN_EXPIRE_HOURS),
     }
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -260,7 +263,7 @@ def analyze_study(
     study.prediction = "glioma"
     study.confidence = 0.94
     study.status = "done"
-    study.processed_at = datetime.utcnow()
+    study.processed_at = datetime.now(MSK)
     db.commit()
 
     write_log("analyze_study", user_id, f"study_id={study.id}")

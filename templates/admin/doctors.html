@@ -8,20 +8,18 @@
 </header>
 
 <div class="card">
-  <h2 class="card__title">Добавить нового врача</h2>
-  <form id="createDoctorForm" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:700px;">
-    <input class="input" id="fullName" placeholder="ФИО" required>
-    <input class="input" id="login" placeholder="Логин" required>
-    <input class="input" id="password" type="password" placeholder="Пароль" required>
-    <input class="input" id="specialty" placeholder="Специальность (например, Невролог)">
-    <input class="input" id="hospital" placeholder="Больница">
-    <button class="btn btn--primary" type="submit">Создать врача</button>
-  </form>
-  <p id="formStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
-</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <h2 class="card__title" style="margin-bottom:0;">Все врачи</h2>
+    <button class="btn btn--primary" onclick="openCreateDoctor()">+ Создать врача</button>
+  </div>
 
-<div class="card">
-  <h2 class="card__title">Все врачи</h2>
+  <!-- Поиск -->
+  <div class="search" style="margin-bottom:16px;">
+    <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
+    <input class="input" type="search" id="doctorSearch" placeholder="Поиск по ФИО или логину">
+  </div>
+
+  <!-- Таблица врачей -->
   <table style="width:100%;border-collapse:collapse;font-size:14px;" id="doctorsTable">
     <thead>
       <tr style="text-align:left;border-bottom:1px solid var(--border);">
@@ -39,6 +37,26 @@
   </table>
 </div>
 
+<!-- Модальное окно создания врача -->
+<div id="createDoctorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:24px;border-radius:12px;max-width:500px;width:90%;">
+    <h3 style="margin-bottom:16px;">Новый врач</h3>
+    <div style="display:grid;gap:12px;">
+      <input class="input" id="ndFullName" placeholder="ФИО *" required>
+      <input class="input" id="ndLogin" placeholder="Логин *" required>
+      <input class="input" id="ndPassword" type="password" placeholder="Пароль *" required>
+      <input class="input" id="ndSpecialty" placeholder="Специальность (например, Невролог)">
+      <input class="input" id="ndHospital" placeholder="Больница">
+    </div>
+    <p id="ndStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+      <button class="btn btn--secondary" onclick="closeCreateDoctor()">Отмена</button>
+      <button class="btn btn--primary" onclick="createDoctor()">Создать</button>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно редактирования врача -->
 <div id="editDoctorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;">
   <div style="background:white;padding:24px;border-radius:12px;max-width:500px;width:90%;">
     <h3 style="margin-bottom:16px;">Редактировать врача</h3>
@@ -59,11 +77,57 @@
 
 <script>
   const API_URL = "http://localhost:8000";
-  let doctorsCache = [];
   const adminToken = localStorage.getItem("token");
   const adminRole = localStorage.getItem("role");
   if (!adminToken) window.location.href = "/login/";
   if (adminRole !== "admin") window.location.href = "/patients/";
+
+  let doctorsCache = [];
+  let doctorSearchQuery = "";
+
+  function renderDoctors(doctors) {
+    const tbody = document.querySelector("#doctorsTable tbody");
+
+    if (!doctors.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-secondary">Нет врачей</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = doctors.map(d => `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px 0;">${d.full_name}</td>
+        <td>${d.login}</td>
+        <td>${d.specialty ?? "—"}</td>
+        <td>${d.hospital ?? "—"}</td>
+        <td>
+          <span class="badge badge--${d.is_active ? 'success' : 'neutral'}">
+            ${d.is_active ? 'Активен' : 'Отключён'}
+          </span>
+        </td>
+        <td>
+          <button class="btn btn--secondary" style="font-size:12px;" onclick="toggleActive('${d.id}')">
+            ${d.is_active ? 'Отключить' : 'Включить'}
+          </button>
+          <button class="btn btn--secondary" style="font-size:12px;margin-left:6px;" onclick="editDoctor('${d.id}')">
+            Редактировать
+          </button>
+        </td>
+      </tr>
+    `).join("");
+  }
+
+  function applyDoctorFilter() {
+    let filtered = doctorsCache;
+    if (doctorSearchQuery.trim()) {
+      const q = doctorSearchQuery.trim().toLowerCase();
+      filtered = filtered.filter(d =>
+        (d.full_name || "").toLowerCase().includes(q) ||
+        (d.login || "").toLowerCase().includes(q)
+      );
+    }
+    renderDoctors(filtered);
+  }
+
   async function loadDoctors() {
     const tbody = document.querySelector("#doctorsTable tbody");
     try {
@@ -75,106 +139,50 @@
         window.location.href = "/login/";
         return;
       }
-      const doctors = await res.json();
-      doctorsCache = doctors;
-      if (!doctors.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-secondary">Нет врачей</td></tr>';
-        return;
-      }
-      tbody.innerHTML = doctors.map(d => `
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:12px 0;">${d.full_name}</td>
-          <td>${d.login}</td>
-          <td>${d.specialty ?? "—"}</td>
-          <td>${d.hospital ?? "—"}</td>
-          <td>
-            <span class="badge badge--${d.is_active ? 'success' : 'neutral'}">
-              ${d.is_active ? 'Активен' : 'Отключён'}
-            </span>
-          </td>
-          <td>
-            <button class="btn btn--secondary" style="font-size:12px;" onclick="toggleActive('${d.id}')">
-              ${d.is_active ? 'Отключить' : 'Включить'}
-            </button>
-            <button class="btn btn--secondary" style="font-size:12px;margin-left:6px;" onclick="editDoctor('${d.id}')">
-              Редактировать
-            </button>
-          </td>
-        </tr>
-      `).join("");
+      doctorsCache = await res.json();
+      applyDoctorFilter();
     } catch (err) {
       tbody.innerHTML = `<tr><td colspan="6" class="text-secondary">Ошибка: ${err.message}</td></tr>`;
     }
   }
-  function editDoctor(doctorId) {
-  const d = doctorsCache.find(x => x.id === doctorId);
-  if (!d) return;
-  document.getElementById("editDoctorId").value = d.id;
-  document.getElementById("editFullName").value = d.full_name || "";
-  document.getElementById("editSpecialty").value = d.specialty || "";
-  document.getElementById("editHospital").value = d.hospital || "";
-  document.getElementById("editPassword").value = "";
-  document.getElementById("editDoctorStatus").textContent = "";
-  document.getElementById("editDoctorModal").style.display = "flex";
-}
 
-function closeEditDoctor() {
-  document.getElementById("editDoctorModal").style.display = "none";
-}
-
-async function saveDoctor() {
-  const id = document.getElementById("editDoctorId").value;
-  const statusEl = document.getElementById("editDoctorStatus");
-  statusEl.textContent = "Сохранение...";
-  statusEl.style.color = "var(--text-secondary)";
-
-  const payload = {
-    full_name: document.getElementById("editFullName").value.trim() || null,
-    specialty: document.getElementById("editSpecialty").value.trim() || null,
-    hospital: document.getElementById("editHospital").value.trim() || null,
-    password: document.getElementById("editPassword").value || null,
-  };
-
-  try {
-    const res = await fetch(`${API_URL}/admin/doctors/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${adminToken}`
-      },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || "Ошибка сохранения");
-    }
-    statusEl.textContent = "Сохранено";
-    statusEl.style.color = "var(--success)";
-    await loadDoctors();
-    setTimeout(closeEditDoctor, 500);
-  } catch (err) {
-    statusEl.textContent = `Ошибка: ${err.message}`;
-    statusEl.style.color = "var(--coral)";
+  // === Создание врача ===
+  function openCreateDoctor() {
+    document.getElementById("ndFullName").value = "";
+    document.getElementById("ndLogin").value = "";
+    document.getElementById("ndPassword").value = "";
+    document.getElementById("ndSpecialty").value = "";
+    document.getElementById("ndHospital").value = "";
+    document.getElementById("ndStatus").textContent = "";
+    document.getElementById("createDoctorModal").style.display = "flex";
   }
-}
 
-// Закрытие по клику вне окна
-document.getElementById("editDoctorModal").addEventListener("click", (e) => {
-  if (e.target.id === "editDoctorModal") closeEditDoctor();
-});
+  function closeCreateDoctor() {
+    document.getElementById("createDoctorModal").style.display = "none";
+  }
 
-  document.getElementById("createDoctorForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const statusEl = document.getElementById("formStatus");
+  async function createDoctor() {
+    const statusEl = document.getElementById("ndStatus");
+
+    const fullName = document.getElementById("ndFullName").value.trim();
+    const login = document.getElementById("ndLogin").value.trim();
+    const password = document.getElementById("ndPassword").value;
+
+    if (!fullName || !login || !password) {
+      statusEl.textContent = "Заполните обязательные поля";
+      statusEl.style.color = "var(--coral)";
+      return;
+    }
+
     statusEl.textContent = "Создание...";
     statusEl.style.color = "var(--text-secondary)";
 
     const payload = {
-      full_name: document.getElementById("fullName").value.trim(),
-      login: document.getElementById("login").value.trim(),
-      password: document.getElementById("password").value,
-      specialty: document.getElementById("specialty").value.trim() || null,
-      hospital: document.getElementById("hospital").value.trim() || null,
+      full_name: fullName,
+      login: login,
+      password: password,
+      specialty: document.getElementById("ndSpecialty").value.trim() || null,
+      hospital: document.getElementById("ndHospital").value.trim() || null,
     };
 
     try {
@@ -192,13 +200,66 @@ document.getElementById("editDoctorModal").addEventListener("click", (e) => {
       }
       statusEl.textContent = "Врач создан";
       statusEl.style.color = "var(--success)";
-      document.getElementById("createDoctorForm").reset();
       await loadDoctors();
+      setTimeout(closeCreateDoctor, 500);
     } catch (err) {
       statusEl.textContent = `Ошибка: ${err.message}`;
       statusEl.style.color = "var(--coral)";
     }
-  });
+  }
+
+  // === Редактирование ===
+  function editDoctor(doctorId) {
+    const d = doctorsCache.find(x => x.id === doctorId);
+    if (!d) return;
+    document.getElementById("editDoctorId").value = d.id;
+    document.getElementById("editFullName").value = d.full_name || "";
+    document.getElementById("editSpecialty").value = d.specialty || "";
+    document.getElementById("editHospital").value = d.hospital || "";
+    document.getElementById("editPassword").value = "";
+    document.getElementById("editDoctorStatus").textContent = "";
+    document.getElementById("editDoctorModal").style.display = "flex";
+  }
+
+  function closeEditDoctor() {
+    document.getElementById("editDoctorModal").style.display = "none";
+  }
+
+  async function saveDoctor() {
+    const id = document.getElementById("editDoctorId").value;
+    const statusEl = document.getElementById("editDoctorStatus");
+    statusEl.textContent = "Сохранение...";
+    statusEl.style.color = "var(--text-secondary)";
+
+    const payload = {
+      full_name: document.getElementById("editFullName").value.trim() || null,
+      specialty: document.getElementById("editSpecialty").value.trim() || null,
+      hospital: document.getElementById("editHospital").value.trim() || null,
+      password: document.getElementById("editPassword").value || null,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/admin/doctors/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Ошибка сохранения");
+      }
+      statusEl.textContent = "Сохранено";
+      statusEl.style.color = "var(--success)";
+      await loadDoctors();
+      setTimeout(closeEditDoctor, 500);
+    } catch (err) {
+      statusEl.textContent = `Ошибка: ${err.message}`;
+      statusEl.style.color = "var(--coral)";
+    }
+  }
 
   async function toggleActive(doctorId) {
     await fetch(`${API_URL}/admin/doctors/${doctorId}/toggle-active`, {
@@ -208,9 +269,21 @@ document.getElementById("editDoctorModal").addEventListener("click", (e) => {
     await loadDoctors();
   }
 
+  // === Поиск ===
+  document.getElementById("doctorSearch").addEventListener("input", (e) => {
+    doctorSearchQuery = e.target.value;
+    applyDoctorFilter();
+  });
+
+  // === Закрытие по клику вне модалок ===
+  document.getElementById("createDoctorModal").addEventListener("click", (e) => {
+    if (e.target.id === "createDoctorModal") closeCreateDoctor();
+  });
+
+  document.getElementById("editDoctorModal").addEventListener("click", (e) => {
+    if (e.target.id === "editDoctorModal") closeEditDoctor();
+  });
+
   loadDoctors();
 </script>
-
-<!-- Модальное окно редактирования врача -->
-
 {% endblock %}

@@ -1,11 +1,18 @@
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey, Float, Text, Date
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import uuid
 
 from database import Base
 
+
+# === Московское время (UTC+3) ===
+MSK = timezone(timedelta(hours=3))
+
+def msk_now():
+    """Возвращает текущее время по МСК (naive datetime для БД)."""
+    return datetime.now(MSK).replace(tzinfo=None)
 
 class Doctor(Base):
     __tablename__ = "doctors"
@@ -17,7 +24,7 @@ class Doctor(Base):
     specialty = Column(String, nullable=True)   # «невролог», «рентгенолог»
     hospital = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=msk_now)
 
     # Пациенты, которых создал этот врач
     patients = relationship(
@@ -41,7 +48,7 @@ class Admin(Base):
     login = Column(String, unique=True, nullable=False)
     password_hash = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=msk_now)
 
 
 class Patient(Base):
@@ -73,7 +80,7 @@ class Patient(Base):
     # === Связи ===
     created_by = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=False)
     attending_doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=msk_now)
 
     # === Relationships ===
     created_by_doctor = relationship(
@@ -104,7 +111,7 @@ class Study(Base):
     confidence = Column(Float, nullable=True)
     status = Column(String, default="pending")   # pending / done / error
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=msk_now)
     processed_at = Column(DateTime, nullable=True)
 
     patient = relationship("Patient", back_populates="studies")
