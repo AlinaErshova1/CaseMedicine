@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Карточка пациента — AI-MRI{% endblock %}
+
+{% block content %}
+<a href="#" id="backLink" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;font-size:13px;color:var(--text-secondary);">
+  ← Назад к списку
+</a>
+
+<header class="page-header">
+  <h1 class="page-title" id="patientName">Загрузка…</h1>
+  <p class="page-subtitle" id="patientMeta"></p>
+  <div id="adminActions" style="display:none;margin-top:12px;">
+    <button class="btn btn--secondary" onclick="togglePatientEdit()">Редактировать</button>
+    <button class="btn btn--secondary" style="color:var(--coral);border-color:var(--coral);margin-left:8px;" onclick="deletePatient()">Удалить пациента</button>
+  </div>
+</header>
+
+<div id="patientContent">
+  <p class="text-secondary">Загрузка данных…</p>
+</div>
+
+<!-- Модальное окно редактирования пациента -->
+<div id="editPatientModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;">
+  <div style="background:white;padding:24px;border-radius:12px;max-width:600px;width:90%;margin:40px auto;">
+    <h3 style="margin-bottom:16px;">Редактировать пациента</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <input class="input" id="epFullName" placeholder="ФИО">
+      <select class="input" id="epSex">
+        <option value="M">Мужской</option>
+        <option value="F">Женский</option>
+      </select>
+      <input class="input" id="epBirthDate" type="date" placeholder="Дата рождения">
+      <input class="input" id="epPhone" placeholder="Телефон">
+      <input class="input" id="epEmail" placeholder="Email">
+      <input class="input" id="epPolicyOms" placeholder="Полис ОМС">
+      <input class="input" id="epBloodType" placeholder="Группа крови">
+      <input class="input" id="epHeight" type="number" placeholder="Рост, см">
+      <input class="input" id="epWeight" type="number" placeholder="Вес, кг">
+      <input class="input" id="epAddress" placeholder="Адрес" style="grid-column:span 2;">
+      <textarea class="input" id="epReason" placeholder="Причина обращения" style="grid-column:span 2;"></textarea>
+      <textarea class="input" id="epComplaints" placeholder="Жалобы" style="grid-column:span 2;"></textarea>
+      <textarea class="input" id="epAllergies" placeholder="Аллергии" style="grid-column:span 2;"></textarea>
+    </div>
+    <p id="editPatientStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+      <button class="btn btn--secondary" onclick="closeEditPatient()">Отмена</button>
+      <button class="btn btn--primary" onclick="savePatient()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000";
+  const token = localStorage.getItem("token");
+  const detailRole = localStorage.getItem("role") || "doctor";
+  const isAdmin = detailRole === "admin";
+  // Кнопка «Назад» — ведёт на страницу по роли
+  document.getElementById("backLink").href =
+    isAdmin ? "/admin-panel/patients/" : "/patients/";
+  if (!token) window.location.href = "/login/";
+
+  const patientId = "{{ patient_id }}";
+  let patientCache = null;
+
+  function formatDateTime(iso) {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return "—";
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${pad(d.getDate())}-${pad(d.getMonth() + 1)}-${d.getFullYear()} ` +
+           `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} МСК`;
+  }
+
+  async function loadPatient() {
+    try {
+      const res = await fetch(`${API_URL}/patients/${patientId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+      if (!res.ok) throw new Error("Пациент не найден");
+
+      const p = await res.json();
+      patientCache = p;
+
+      document.getElementById("patientName").textContent = p.full_name;
+      document.getElementById("patientMeta").textContent =
+        `${p.anonymized_code} · ${p.age ?? "—"} лет · ${p.sex === "M" ? "Мужской" : "Женский"}`;
+
+      document.getElementById("patientContent").innerHTML = `
+        <div class="card">
+          <h2 class="card__title">Основная информация</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+            ${field("ФИО", p.full_name)}
+            ${field("Дата рождения", p.birth_date)}
+            ${field("Возраст", (p.age ?? "—") + " лет")}
+            ${field("Пол", p.sex === "M" ? "Мужской" : "Женский")}
+            ${field("ID пациента", p.anonymized_code)}
+            ${field("Полис ОМС", p.policy_oms)}
+            ${field("Группа крови", p.blood_type)}
+            ${field("Рост и вес", `${p.height_cm ?? "—"} см · ${p.weight_kg ?? "—"} кг`)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Контакты</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+            ${field("Телефон", p.phone)}
+            ${field("Электронная почта", p.email)}
+            ${field("Адрес", p.address)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Медицинская информация</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+            ${field("Лечащий врач", p.attending_doctor)}
+            ${field("Причина обращения", p.reason)}
+            ${field("Жалобы", p.complaints)}
+            ${field("Аллергии", p.allergies)}
+            ${field("Дата регистрации", formatDateTime(p.created_at))}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Исследования</h2>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px;">
+            ${field("Всего ИИ-анализов", p.studies_stats.total)}
+            ${field("Первое исследование", formatDateTime(p.studies_stats.first_date))}
+            ${field("Последнее исследование", formatDateTime(p.studies_stats.last_date))}
+            ${field("Результат последнего анализа", humanPrediction(p.studies_stats.last_prediction))}
+            ${field("Вероятность обнаружения", p.studies_stats.last_confidence != null
+              ? Math.round(p.studies_stats.last_confidence * 100) + "%"
+              : "—")}
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;">
+
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Загрузить новый снимок</h3>
+
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;">
+            <input type="file" id="mriFile" accept="image/png,image/jpeg" style="font-size:13px;">
+            <button id="uploadBtn" class="btn btn--primary" type="button">Загрузить</button>
+          </div>
+          <p id="uploadStatus" style="font-size:13px;color:var(--text-secondary);margin-bottom:24px;"></p>
+
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">История исследований</h3>
+          <div id="studiesList" style="display:flex;flex-direction:column;gap:16px;">
+            <p class="text-secondary">Загрузка…</p>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      document.getElementById("patientContent").innerHTML =
+        `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  function field(label, value) {
+    return `
+      <div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">${label}</div>
+        <div style="font-size:14px;font-weight:500;color:var(--text-primary);">${value ?? "—"}</div>
+      </div>
+    `;
+  }
+
+  function humanPrediction(pred) {
+    if (!pred) return "—";
+    return {
+      "glioma": "Глиома",
+      "meningioma": "Менингиома",
+      "pituitary": "Опухоль гипофиза",
+      "no_tumor": "Опухоль не обнаружена",
+    }[pred] || pred;
+  }
+
+  function bindUploadButton() {
+    const btn = document.getElementById("uploadBtn");
+    if (!btn) return;
+    btn.addEventListener("click", async () => {
+      const fileInput = document.getElementById("mriFile");
+      const statusEl = document.getElementById("uploadStatus");
+
+      if (!fileInput.files.length) {
+        statusEl.textContent = "Выберите файл";
+        statusEl.style.color = "var(--coral)";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("patient_id", patientId);
+      formData.append("file", fileInput.files[0]);
+
+      statusEl.textContent = "Загрузка...";
+      statusEl.style.color = "var(--text-secondary)";
+
+      try {
+        const res = await fetch(`${API_URL}/upload`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` },
+          body: formData
+        });
+        if (!res.ok) throw new Error("Ошибка загрузки");
+        const data = await res.json();
+        statusEl.textContent = `Загружено: ${data.filename}`;
+        statusEl.style.color = "var(--success)";
+        fileInput.value = "";
+        await loadStudies();
+      } catch (err) {
+        statusEl.textContent = `Ошибка: ${err.message}`;
+        statusEl.style.color = "var(--coral)";
+      }
+    });
+  }
+
+  async function loadStudies() {
+    const listEl = document.getElementById("studiesList");
+    if (!listEl) return;
+
+    try {
+      const res = await fetch(`${API_URL}/patients/${patientId}/studies`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Ошибка загрузки исследований");
+      const studies = await res.json();
+
+      if (!studies.length) {
+        listEl.innerHTML = '<p class="text-secondary">Пока нет исследований</p>';
+        return;
+      }
+
+      listEl.innerHTML = studies.map(s => `
+        <div style="border:1px solid var(--border);border-radius:12px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:13px;color:var(--text-secondary);">${formatDateTime(s.created_at)}</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge badge--${s.status === 'done' ? 'success' : 'neutral'}">${s.status === 'done' ? 'Готово' : 'Ожидает'}</span>
+              ${isAdmin ? `<button class="btn btn--secondary" style="font-size:12px;color:var(--coral);border-color:var(--coral);" onclick="deleteStudy('${s.id}')">Удалить</button>` : ""}
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
+            <div>
+              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Оригинал</div>
+              <img src="${API_URL}${s.original_url}" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Оригинал">
+            </div>
+            ${s.result_url ? `
+              <div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Результат ИИ</div>
+                <img src="${API_URL}${s.result_url}" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Результат">
+              </div>
+            ` : `
+              <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--bg-main);border-radius:8px;border:1px dashed var(--border);padding:20px;">
+                <p class="text-secondary" style="font-size:12px;margin-bottom:8px;">Анализ не проведён</p>
+                <button class="btn btn--secondary" onclick="analyzeStudy('${s.id}')" style="font-size:12px;">Провести анализ</button>
+              </div>
+            `}
+          </div>
+          ${s.prediction ? `
+            <div style="font-size:13px;">
+              <b>Результат:</b> ${humanPrediction(s.prediction)} ·
+              <b>Вероятность:</b> ${s.confidence != null ? Math.round(s.confidence * 100) + "%" : "—"}
+            </div>
+          ` : ""}
+        </div>
+      `).join("");
+    } catch (err) {
+      listEl.innerHTML = `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  async function analyzeStudy(studyId) {
+    try {
+      const res = await fetch(`${API_URL}/studies/${studyId}/analyze`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Ошибка анализа");
+      await loadStudies();
+    } catch (err) {
+      alert(`Ошибка: ${err.message}`);
+    }
+  }
+
+  async function deleteStudy(studyId) {
+    if (!confirm("Удалить снимок и все связанные файлы?")) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/studies/${studyId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Ошибка удаления");
+      await loadStudies();
+    } catch (err) {
+      alert(`Ошибка: ${err.message}`);
+    }
+  }
+
+  async function deletePatient() {
+    if (!confirm("Удалить пациента и все его исследования? Это необратимо.")) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/patients/${patientId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Ошибка удаления");
+      alert("Пациент удалён");
+      window.location.href = "/admin-panel/patients/";
+    } catch (err) {
+      alert(`Ошибка: ${err.message}`);
+    }
+  }
+
+  // === Редактирование пациента ===
+  function togglePatientEdit() {
+    if (!patientCache) return;
+    const p = patientCache;
+    document.getElementById("epFullName").value = p.full_name || "";
+    document.getElementById("epSex").value = p.sex || "M";
+    document.getElementById("epBirthDate").value = p.birth_date || "";
+    document.getElementById("epPhone").value = p.phone || "";
+    document.getElementById("epEmail").value = p.email || "";
+    document.getElementById("epPolicyOms").value = p.policy_oms || "";
+    document.getElementById("epBloodType").value = p.blood_type || "";
+    document.getElementById("epHeight").value = p.height_cm || "";
+    document.getElementById("epWeight").value = p.weight_kg || "";
+    document.getElementById("epAddress").value = p.address || "";
+    document.getElementById("epReason").value = p.reason || "";
+    document.getElementById("epComplaints").value = p.complaints || "";
+    document.getElementById("epAllergies").value = p.allergies || "";
+    document.getElementById("editPatientStatus").textContent = "";
+    document.getElementById("editPatientModal").style.display = "flex";
+  }
+
+  function closeEditPatient() {
+    document.getElementById("editPatientModal").style.display = "none";
+  }
+
+  async function savePatient() {
+    const statusEl = document.getElementById("editPatientStatus");
+    statusEl.textContent = "Сохранение...";
+    statusEl.style.color = "var(--text-secondary)";
+
+    const payload = {
+      full_name: document.getElementById("epFullName").value.trim() || null,
+      sex: document.getElementById("epSex").value || null,
+      birth_date: document.getElementById("epBirthDate").value || null,
+      phone: document.getElementById("epPhone").value.trim() || null,
+      email: document.getElementById("epEmail").value.trim() || null,
+      policy_oms: document.getElementById("epPolicyOms").value.trim() || null,
+      blood_type: document.getElementById("epBloodType").value.trim() || null,
+      height_cm: parseInt(document.getElementById("epHeight").value) || null,
+      weight_kg: parseInt(document.getElementById("epWeight").value) || null,
+      address: document.getElementById("epAddress").value.trim() || null,
+      reason: document.getElementById("epReason").value.trim() || null,
+      complaints: document.getElementById("epComplaints").value.trim() || null,
+      allergies: document.getElementById("epAllergies").value.trim() || null,
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/admin/patients/${patientId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Ошибка сохранения");
+      }
+      statusEl.textContent = "Сохранено";
+      statusEl.style.color = "var(--success)";
+      await loadPatient();                    // ← обновляем карточку
+      await loadStudies();                    // ← И заново грузим снимки
+      setTimeout(closeEditPatient, 500);
+    } catch (err) {
+      statusEl.textContent = `Ошибка: ${err.message}`;
+      statusEl.style.color = "var(--coral)";
+    }
+  }
+
+  // Закрытие по клику вне окна
+  document.getElementById("editPatientModal").addEventListener("click", (e) => {
+    if (e.target.id === "editPatientModal") closeEditPatient();
+  });
+
+  // === Инициализация ===
+  async function init() {
+    await loadPatient();
+    if (isAdmin) {
+      document.getElementById("adminActions").style.display = "block";
+    }
+    bindUploadButton();
+    loadStudies();
+  }
+
+  init();
+</script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — AI-MRI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-bg">
+      <div class="login-bg__ring login-bg__ring--1"></div>
+      <div class="login-bg__ring login-bg__ring--2"></div>
+      <div class="login-bg__ring login-bg__ring--3"></div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card__logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4a5 5 0 0 0-5 5v1a4 4 0 0 0 0 8h1v-2h6v2h1a4 4 0 0 0 0-8V9a5 5 0 0 0-5-5z"/>
+            <circle cx="9" cy="11" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="11" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="15" r="0.8" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <span class="login-card__brand">AI-MRI</span>
+      </div>
+      <div class="login-card__tagline">Система интеллектуального анализа МРТ</div>
+
+      <h1 class="login-card__title">Вход для врача</h1>
+
+      <form id="loginForm">
+  <div class="field">
+    <label class="field__label" for="login">Логин или электронная почта</label>
+    <input class="input" type="text" id="login" name="login" required>
+  </div>
+
+  <div class="field">
+    <label class="field__label" for="password">Пароль</label>
+    <div class="input-wrap">
+      <input class="input" type="password" id="password" name="password" required>
+      <button type="button" class="input-wrap__btn" id="togglePassword" aria-label="Показать пароль">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </button>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn--primary btn--block" style="margin-top:8px;">Войти</button>
+</form>
+
+<p id="loginError" style="color:var(--coral, #EF5B5B);font-size:13px;margin-top:12px;text-align:center;min-height:18px;"></p>
+
+      <a href="#" class="login-card__forgot" id="forgotPassword">Забыли пароль?</a>
+
+      <p id="forgotMessage" style="color:var(--coral);font-size:13px;margin-top:12px;text-align:center;min-height:18px;display:none;">
+        Обратитесь к администратору для сброса пароля
+      </p>
+
+      <p class="login-card__footer">
+        Система предназначена для использования медицинскими специалистами. Результаты AI-анализа не являются медицинским заключением.
+      </p>
+    </div>
+  </div>
+<script>
+  // === Показать/скрыть пароль ===
+document.getElementById("togglePassword").addEventListener("click", () => {
+  const passwordInput = document.getElementById("password");
+  const btn = document.getElementById("togglePassword");
+  const iconSpan = btn.querySelector(".icon");
+
+  if (passwordInput.type === "password") {
+    // Показать пароль
+    passwordInput.type = "text";
+    btn.setAttribute("aria-label", "Скрыть пароль");
+    // Меняем иконку: добавляем "перечёркнутый глаз"
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+      <circle cx="12" cy="12" r="3"/>
+      <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>`;
+  } else {
+    // Скрыть пароль
+    passwordInput.type = "password";
+    btn.setAttribute("aria-label", "Показать пароль");
+    // Возвращаем обычный глаз
+    iconSpan.innerHTML = `<svg viewBox="0 0 24 24">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>`;
+  }
+});
+
+// === Забыли пароль? ===
+document.getElementById("forgotPassword").addEventListener("click", (e) => {
+  e.preventDefault();   // не даём ссылке никуда переходить
+  const msg = document.getElementById("forgotMessage");
+  const errEl = document.getElementById("loginError");
+  errEl.textContent = "";              // скрываем предыдущую ошибку
+  msg.style.display = "block";          // показываем сообщение
+});
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const login = document.getElementById("login").value.trim();
+    const password = document.getElementById("password").value;
+    const errEl = document.getElementById("loginError");
+    errEl.textContent = "";
+
+    try {
+      const res = await fetch(
+        `http://localhost:8000/auth/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,
+        { method: "POST" }
+      );
+
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        throw new Error(detail.detail || "Неверный логин или пароль");
+      }
+
+      const data = await res.json();
+
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("userName", data.user.full_name);
+      localStorage.setItem("userSpecialty", data.user.specialty || "");
+
+      if (data.role === "admin") {
+        window.location.href = "/admin-panel/doctors/";
+      } else {
+        window.location.href = "/patients/";
+      }
+    } catch (err) {
+      errEl.textContent = err.message;
+    }
+  });
+</script>
+</body>
+</html>
