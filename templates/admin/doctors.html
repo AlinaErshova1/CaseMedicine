@@ -13,13 +13,16 @@
     <button class="btn btn--primary" onclick="openCreateDoctor()">+ Создать врача</button>
   </div>
 
-  <!-- Поиск -->
   <div class="search" style="margin-bottom:16px;">
     <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
-    <input class="input" type="search" id="doctorSearch" placeholder="Поиск по ФИО или логину">
+    <input class="input" type="text" id="doctorSearch"
+       placeholder="Поиск по ФИО или логину"
+       autocomplete="off"
+       name="doctor_search_unique_field_3"
+       readonly
+       onfocus="this.removeAttribute('readonly')">
   </div>
 
-  <!-- Таблица врачей -->
   <table style="width:100%;border-collapse:collapse;font-size:14px;" id="doctorsTable">
     <thead>
       <tr style="text-align:left;border-bottom:1px solid var(--border);">

@@ -104,6 +104,9 @@ def predict(image_path: str, use_tta: bool = True) -> dict:
     pred_class = _class_names[pred_idx]
     confidence = float(probs[pred_idx])
 
+    confidence = (confidence * 100 - 1) / 100
+    confidence = int(confidence * 100) / 100
+
     # 3. Grad-CAM визуализация
     tensor = get_val_transforms(_img_size)(image=img_rgb)["image"].unsqueeze(0).to(DEVICE)
     target_layer = _find_target_layer(_model)
