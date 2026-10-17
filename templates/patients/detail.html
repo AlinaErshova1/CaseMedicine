@@ -50,6 +50,18 @@
   </div>
 </div>
 
+<div id="loadingModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:40px 60px;border-radius:16px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+    <div class="loader"></div>
+    <p style="margin-top:20px;font-size:16px;font-weight:500;color:var(--text-primary);">
+      Анализ изображения…
+    </p>
+    <p style="margin-top:8px;font-size:13px;color:var(--text-secondary);">
+      Это может занять несколько секунд
+    </p>
+  </div>
+</div>
+
 <script>
   const API_URL = "http://localhost:8000";
   const token = localStorage.getItem("token");
@@ -276,15 +288,28 @@
   }
 
   async function analyzeStudy(studyId) {
+    const loadingModal = document.getElementById("loadingModal");
+
+    // Показать колесо загрузки
+    loadingModal.style.display = "flex";
+
     try {
       const res = await fetch(`${API_URL}/studies/${studyId}/analyze`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Ошибка анализа");
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Ошибка анализа");
+      }
+
       await loadStudies();
     } catch (err) {
       alert(`Ошибка: ${err.message}`);
+    } finally {
+      // Скрыть колесо загрузки — в любом случае (успех или ошибка)
+      loadingModal.style.display = "none";
     }
   }
 
