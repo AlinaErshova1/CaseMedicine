@@ -61,37 +61,77 @@
     </p>
   </div>
 </div>
-<div id="manualAnnotateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center;">
-  <div style="background:white;padding:20px;border-radius:12px;max-width:900px;width:95%;max-height:95vh;overflow:auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h3 id="annotateTitle">Ручное выделение опухоли</h3>
+
+<div id="manualAnnotateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center;overflow:auto;padding:20px;">
+  <!-- Окно подстраивается под ширину картинки -->
+  <div style="background:white;padding:20px;border-radius:12px;width:fit-content;max-width:95vw;display:flex;flex-direction:column;">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;min-width:300px;">
+      <h3 id="annotateTitle" style="margin:0;">Ручное выделение опухоли</h3>
       <button onclick="closeAnnotateModal()" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
     </div>
-    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
+
+    <p id="annotateInstruction" style="font-size:14px;color:var(--text-secondary);margin-bottom:12px;">
       Зажмите ЛКМ и обведите опухоль. Отпустите — линия замкнётся.
     </p>
-    <div style="position:relative;display:inline-block;">
-      <img id="annotateBaseImage" style="max-width:100%;display:block;border-radius:8px;" alt="Оригинал">
+
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <button id="modeBrush" class="btn btn--primary" onclick="setDrawMode('brush')">Кисть</button>
+      <button id="modePoly" class="btn btn--secondary" onclick="setDrawMode('polygon')">Полигон</button>
+    </div>
+
+    <div style="position:relative;display:inline-block;max-height: 70vh;">
+      <img id="annotateBaseImage" style="max-width:100%;max-height:70vh;display:block;border-radius:8px;" alt="Оригинал">
       <canvas id="annotateCanvas" style="position:absolute;top:0;left:0;cursor:crosshair;"></canvas>
     </div>
-    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">
-      <button class="btn btn--secondary" onclick="clearAnnotation()">Очистить</button>
-      <button class="btn btn--secondary" onclick="closeAnnotateModal()">Отмена</button>
-      <button class="btn btn--primary" onclick="saveAnnotation()">Сохранить</button>
+
+    <!-- Кнопки -->
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <p id="annotateStatus" style="font-size:13px;color:var(--text-secondary);margin:0;"></p>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn--secondary" onclick="clearAnnotation()">Очистить</button>
+        <button class="btn btn--secondary" onclick="closeAnnotateModal()">Отмена</button>
+        <button class="btn btn--primary" onclick="saveAnnotation()">Сохранить</button>
+      </div>
     </div>
-    <p id="annotateStatus" style="font-size:13px;color:var(--text-secondary);margin-top:8px;"></p>
+
+  </div>
+</div>
+
+<div id="manualViewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:3000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:20px;border-radius:12px;max-width:95vw;width:1000px;display:flex;flex-direction:column;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3>Сравнение: Оригинал и Ручное выделение</h3>
+      <button onclick="document.getElementById('manualViewModal').style.display='none'" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="display:flex;gap:16px;justify-content:center;">
+      <!-- Левая часть: Оригинал -->
+      <div style="flex:1;text-align:center;">
+        <p style="margin-bottom:8px;font-weight:bold;">Оригинал</p>
+        <img id="manualViewOriginal" style="max-width:100%;border-radius:8px;" alt="Оригинал">
+      </div>
+
+      <!-- Правая часть: С выделением -->
+      <div style="flex:1;text-align:center;">
+        <p style="margin-bottom:8px;font-weight:bold;">С выделением</p>
+        <div style="position:relative;display:inline-block;">
+            <img id="manualViewBase" style="max-width:100%;border-radius:8px;" alt="Оригинал">
+            <canvas id="manualViewCanvas" style="position:absolute;top:0;left:0;max-width:100%;max-height:100%;"></canvas>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-<!--  const API_URL = "http://localhost:8000";-->
+  // Укажи здесь свой актуальный URL (локальный или туннель)
   const API_URL = "https://starkly-loving-hermit.cloudpub.ru";
   const token = localStorage.getItem("token");
   const detailRole = localStorage.getItem("role") || "doctor";
   const isAdmin = detailRole === "admin";
-  // Кнопка «Назад» — ведёт на страницу по роли
-  document.getElementById("backLink").href =
-    isAdmin ? "/admin-panel/patients/" : "/patients/";
+
+  document.getElementById("backLink").href = isAdmin ? "/admin-panel/patients/" : "/patients/";
   if (!token) window.location.href = "/login/";
 
   const patientId = "{{ patient_id }}";
@@ -270,6 +310,10 @@
         return;
       }
 
+      studies.forEach(s => {
+          studiesCache[s.id] = s.manual_annotation;
+      });
+
       listEl.innerHTML = studies.map(s => `
         <div style="border:1px solid var(--border);border-radius:12px;padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -277,23 +321,6 @@
             <div style="display:flex;gap:8px;align-items:center;">
               <span class="badge badge--${s.status === 'done' ? 'success' : 'neutral'}">${s.status === 'done' ? 'Готово' : 'Ожидает'}</span>
               ${isAdmin ? `<button class="btn btn--secondary" style="font-size:12px;color:var(--coral);border-color:var(--coral);" onclick="deleteStudy('${s.id}')">Удалить</button>` : ""}
-
-              <!-- Кнопки ручного выделения -->
-              ${s.manual_overlay_url ? `
-                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
-                        onclick="openManualView('${s.id}', '${API_URL}${s.manual_overlay_url}', '${API_URL}${s.original_url}')">
-                  Посмотреть ручное выделение
-                </button>
-                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
-                        onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
-                  Редактировать
-                </button>
-              ` : `
-                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
-                        onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
-                  Выделить вручную
-                </button>
-              `}
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
@@ -319,6 +346,21 @@
               <b>Вероятность:</b> ${s.confidence != null ? Math.round(s.confidence * 100) + "%" : "—"}
             </div>
           ` : ""}
+
+          <div style="margin-top:12px; text-align:center; border-top:1px solid var(--border); padding-top:12px;">
+            ${s.manual_annotation ? `
+                <button class="btn btn--primary" onclick="openManualViewById('${s.id}', '${API_URL}${s.original_url}')">
+                Посмотреть ручное выделение
+              </button>
+              <button class="btn btn--secondary" style="margin-left:8px;" onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
+                Редактировать
+              </button>
+            ` : `
+              <button class="btn btn--secondary" onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
+                Выделить вручную
+              </button>
+            `}
+          </div>
         </div>
       `).join("");
     } catch (err) {
@@ -328,8 +370,6 @@
 
   async function analyzeStudy(studyId) {
     const loadingModal = document.getElementById("loadingModal");
-
-    // Показать колесо загрузки
     loadingModal.style.display = "flex";
 
     try {
@@ -347,7 +387,6 @@
     } catch (err) {
       alert(`Ошибка: ${err.message}`);
     } finally {
-      // Скрыть колесо загрузки — в любом случае (успех или ошибка)
       loadingModal.style.display = "none";
     }
   }
@@ -381,7 +420,6 @@
     }
   }
 
-  // === Редактирование пациента ===
   function togglePatientEdit() {
     if (!patientCache) return;
     const p = patientCache;
@@ -442,8 +480,8 @@
       }
       statusEl.textContent = "Сохранено";
       statusEl.style.color = "var(--success)";
-      await loadPatient();                    // ← обновляем карточку
-      await loadStudies();                    // ← И заново грузим снимки
+      await loadPatient();
+      await loadStudies();
       setTimeout(closeEditPatient, 500);
     } catch (err) {
       statusEl.textContent = `Ошибка: ${err.message}`;
@@ -451,22 +489,54 @@
     }
   }
 
-  // Закрытие по клику вне окна
   document.getElementById("editPatientModal").addEventListener("click", (e) => {
     if (e.target.id === "editPatientModal") closeEditPatient();
   });
 
-    // === РУЧНОЕ ВЫДЕЛЕНИЕ ===
+
+  // === РУЧНОЕ ВЫДЕЛЕНИЕ ===
   let currentStudyId = null;
   let drawing = false;
   let currentPath = [];
   let allPolygons = [];
+
+  // Новые переменные для режимов
+  let drawMode = "brush"; // "brush" или "polygon"
+  let polyPoints = [];    // Точки для текущего полигона
+
+    function setDrawMode(mode) {
+    drawMode = mode;
+    const btnBrush = document.getElementById("modeBrush");
+    const btnPoly = document.getElementById("modePoly");
+    const instruction = document.getElementById("annotateInstruction");
+
+    // Сбрасываем текущее рисование при смене режима
+    polyPoints = [];
+    currentPath = [];
+
+    if (mode === "brush") {
+      // Внешний вид кнопок
+      btnBrush.className = "btn btn--primary";
+      btnPoly.className = "btn btn--secondary";
+      // Текст инструкции
+      instruction.textContent = "Зажмите ЛКМ и обведите опухоль. Отпустите — линия замкнётся.";
+    } else {
+      // Внешний вид кнопок
+      btnBrush.className = "btn btn--secondary";
+      btnPoly.className = "btn btn--primary";
+      // Текст инструкции
+      instruction.textContent = "Кликайте по контуру опухоли. Двойной клик — завершить выделение.";
+    }
+
+    redraw(); // Перерисовываем холст, чтобы очистить незавершенные линии
+  }
 
   function openAnnotateModal(studyId, originalUrl) {
     currentStudyId = studyId;
     document.getElementById("annotateTitle").textContent = "Ручное выделение опухоли";
     document.getElementById("annotateStatus").textContent = "";
     document.getElementById("manualAnnotateModal").style.display = "flex";
+    setDrawMode("brush"); // Сбрасываем на кисть при открытии
 
     const img = document.getElementById("annotateBaseImage");
     const canvas = document.getElementById("annotateCanvas");
@@ -482,6 +552,8 @@
 
       allPolygons = [];
       currentPath = [];
+      polyPoints = [];
+      redraw();
     };
     img.src = originalUrl;
   }
@@ -493,10 +565,64 @@
   function clearAnnotation() {
     allPolygons = [];
     currentPath = [];
+    polyPoints = [];
     const canvas = document.getElementById("annotateCanvas");
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     document.getElementById("annotateStatus").textContent = "";
+  }
+
+    // Функция redraw теперь на глобальном уровне
+  function redraw() {
+    const canvas = document.getElementById("annotateCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 3;
+
+    allPolygons.forEach(poly => {
+      if (poly.length < 2) return;
+      ctx.beginPath();
+      ctx.moveTo(poly[0][0], poly[0][1]);
+      poly.forEach(p => ctx.lineTo(p[0], p[1]));
+      ctx.closePath();
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255, 60, 60, 0.3)";
+      ctx.fill();
+    });
+
+    if (drawMode === "brush" && currentPath.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(currentPath[0][0], currentPath[0][1]);
+      currentPath.forEach(p => ctx.lineTo(p[0], p[1]));
+      ctx.strokeStyle = "red";
+      ctx.stroke();
+    }
+
+    if (drawMode === "polygon" && polyPoints.length > 0) {
+      ctx.beginPath();
+      ctx.moveTo(polyPoints[0][0], polyPoints[0][1]);
+      for (let i = 1; i < polyPoints.length; i++) {
+        ctx.lineTo(polyPoints[i][0], polyPoints[i][1]);
+      }
+      ctx.strokeStyle = "#00FF00";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      polyPoints.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "#00FF00";
+        ctx.fill();
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    }
   }
 
   function bindAnnotateEvents() {
@@ -514,40 +640,42 @@
       };
     }
 
-    function redraw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "red";
-      ctx.lineWidth = 3;
+    // --- События мыши ---
 
-      allPolygons.forEach(poly => {
-        if (poly.length < 2) return;
-        ctx.beginPath();
-        ctx.moveTo(poly[0][0], poly[0][1]);
-        poly.forEach(p => ctx.lineTo(p[0], p[1]));
-        ctx.closePath();
-        ctx.stroke();
-        ctx.fillStyle = "rgba(255, 60, 60, 0.3)";
-        ctx.fill();
-      });
+    // Клик (для полигона)
+    canvas.addEventListener("click", (e) => {
+      if (drawMode !== "polygon") return;
+      const c = getCoords(e);
+      polyPoints.push([c.x, c.y]);
+      redraw();
+    });
 
-      if (currentPath.length > 0) {
-        ctx.beginPath();
-        ctx.moveTo(currentPath[0][0], currentPath[0][1]);
-        currentPath.forEach(p => ctx.lineTo(p[0], p[1]));
-        ctx.strokeStyle = "red";
-        ctx.stroke();
+    // Двойной клик (завершение полигона)
+    canvas.addEventListener("dblclick", (e) => {
+      if (drawMode !== "polygon") return;
+      // Убираем лишнюю точку, которая добавилась при первом клике из двойного
+      if (polyPoints.length > 1) {
+        polyPoints.pop();
       }
-    }
+      if (polyPoints.length > 2) {
+        allPolygons.push([...polyPoints]);
+        document.getElementById("annotateStatus").textContent = `Выделено контуров: ${allPolygons.length}`;
+      }
+      polyPoints = [];
+      redraw();
+    });
 
+    // Нажатие мыши (для кисти)
     canvas.addEventListener("mousedown", (e) => {
-      if (e.button !== 0) return;
+      if (drawMode !== "brush" || e.button !== 0) return;
       drawing = true;
       currentPath = [getCoords(e)];
       redraw();
     });
 
+    // Движение мыши (для кисти)
     canvas.addEventListener("mousemove", (e) => {
-      if (!drawing) return;
+      if (drawMode !== "brush" || !drawing) return;
       const c = getCoords(e);
       const last = currentPath[currentPath.length - 1];
       if (Math.hypot(c.x - last[0], c.y - last[1]) < 2) return;
@@ -555,8 +683,9 @@
       redraw();
     });
 
+    // Отпускание мыши (для кисти)
     function finishDrawing() {
-      if (!drawing) return;
+      if (drawMode !== "brush" || !drawing) return;
       drawing = false;
       if (currentPath.length > 2) {
         allPolygons.push([...currentPath]);
@@ -581,7 +710,7 @@
     statusEl.textContent = "Сохранение...";
     statusEl.style.color = "var(--text-secondary)";
 
-    const points = allPolygons.flat();
+    const polygons = allPolygons;
 
     try {
       const res = await fetch(`${API_URL}/studies/${currentStudyId}/annotate`, {
@@ -590,8 +719,9 @@
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ points: points })
+        body: JSON.stringify({ polygons: polygons })
       });
+
       if (!res.ok) throw new Error("Ошибка сохранения");
 
       statusEl.textContent = "Сохранено!";
@@ -604,47 +734,58 @@
     }
   }
 
-  function openManualView(studyId, overlayUrl, originalUrl) {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Сравнение выделения</title>
-        <style>
-          body { margin: 0; background: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-          h2 { margin: 10px 0; }
-          .container { display: flex; width: 100vw; height: 90vh; justify-content: center; align-items: center; gap: 20px; }
-          .image-box { position: relative; width: 45%; height: 100%; display: flex; justify-content: center; align-items: center; }
-          .image-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
-          .overlay-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-          .image-box:hover .overlay-img { opacity: 1; }
-          .label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 5px; font-size: 14px; }
-        </style>
-      </head>
-      <body>
-        <h2>Наведите на правое изображение, чтобы увидеть маску</h2>
-        <div class="container">
-          <div class="image-box">
-            <div class="label">Оригинал</div>
-            <img src="${originalUrl}">
-          </div>
-          <div class="image-box">
-            <div class="label">С выделением</div>
-            <img src="${originalUrl}">
-            <img src="${overlayUrl}" class="overlay-img">
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-    const newWindow = window.open("", "_blank");
-    newWindow.document.write(html);
-    newWindow.document.close();
+  let studiesCache = {};
+
+  function openManualViewById(studyId, originalUrl) {
+    const annotationJson = studiesCache[studyId];
+    openManualView(originalUrl, annotationJson);
+  }
+
+  function openManualView(originalUrl, annotationJson) {
+    document.getElementById("manualViewModal").style.display = "flex";
+    document.getElementById("manualViewOriginal").src = originalUrl;
+
+    const img = document.getElementById("manualViewBase");
+    const canvas = document.getElementById("manualViewCanvas");
+    const ctx = canvas.getContext("2d");
+
+    img.onload = () => {
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.style.width = img.offsetWidth + "px";
+        canvas.style.height = img.offsetHeight + "px";
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (annotationJson) {
+            try {
+                // На случай, если в JSON попали HTML-сущности
+                const cleanJson = annotationJson.replace(/&quot;/g, '"');
+                const polygons = JSON.parse(cleanJson);
+
+                ctx.strokeStyle = "red";
+                ctx.fillStyle = "rgba(255, 60, 60, 0.3)";
+                ctx.lineWidth = 3;
+
+                polygons.forEach(poly => {
+                    if (poly.length < 3) return;
+                    ctx.beginPath();
+                    ctx.moveTo(poly[0][0], poly[0][1]);
+                    for (let i = 1; i < poly.length; i++) {
+                        ctx.lineTo(poly[i][0], poly[i][1]);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                });
+            } catch (e) {
+                console.error("Ошибка парсинга координат", e);
+            }
+        }
+    };
+    img.src = originalUrl;
   }
   // === КОНЕЦ РУЧНОГО ВЫДЕЛЕНИЯ ===
 
-  // === Инициализация ===
   async function init() {
     await loadPatient();
     if (isAdmin) {
