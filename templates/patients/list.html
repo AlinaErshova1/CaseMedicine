@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+{% block title %}Пациенты — AI-MRI{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">Пациенты</h1>
+  <p class="page-subtitle">Выберите пациента для просмотра исследований и результатов анализа.</p>
+</header>
+
+<div class="search">
+  <span class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
+  <input class="input" type="search" id="searchInput" placeholder="Поиск по фамилии, ID пациента">
+</div>
+
+<nav class="alpha-filter" id="alphaFilter">
+  <span class="alpha-filter__item alpha-filter__item--active" data-letter="all">Все</span>
+  <span class="alpha-filter__item" data-letter="А">А</span>
+  <span class="alpha-filter__item" data-letter="Б">Б</span>
+  <span class="alpha-filter__item" data-letter="В">В</span>
+  <span class="alpha-filter__item" data-letter="Г">Г</span>
+  <span class="alpha-filter__item" data-letter="Д">Д</span>
+  <span class="alpha-filter__item" data-letter="Е">Е</span>
+  <span class="alpha-filter__item" data-letter="Ж">Ж</span>
+  <span class="alpha-filter__item" data-letter="З">З</span>
+  <span class="alpha-filter__item" data-letter="И">И</span>
+  <span class="alpha-filter__item" data-letter="К">К</span>
+  <span class="alpha-filter__item" data-letter="Л">Л</span>
+  <span class="alpha-filter__item" data-letter="М">М</span>
+  <span class="alpha-filter__item" data-letter="Н">Н</span>
+  <span class="alpha-filter__item" data-letter="О">О</span>
+  <span class="alpha-filter__item" data-letter="П">П</span>
+  <span class="alpha-filter__item" data-letter="Р">Р</span>
+  <span class="alpha-filter__item" data-letter="С">С</span>
+  <span class="alpha-filter__item" data-letter="Т">Т</span>
+  <span class="alpha-filter__item" data-letter="У">У</span>
+  <span class="alpha-filter__item" data-letter="Ф">Ф</span>
+  <span class="alpha-filter__item" data-letter="Х">Х</span>
+  <span class="alpha-filter__item" data-letter="Ц">Ц</span>
+  <span class="alpha-filter__item" data-letter="Ч">Ч</span>
+  <span class="alpha-filter__item" data-letter="Ш">Ш</span>
+  <span class="alpha-filter__item" data-letter="Щ">Щ</span>
+  <span class="alpha-filter__item" data-letter="Э">Э</span>
+  <span class="alpha-filter__item" data-letter="Ю">Ю</span>
+  <span class="alpha-filter__item" data-letter="Я">Я</span>
+</nav>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+  <h2 style="font-size:15px;font-weight:600;">Все пациенты</h2>
+  <button class="btn btn--primary" onclick="openCreatePatient()">+ Создать пациента</button>
+</div>
+
+<section class="patient-list" id="patientList">
+  <p class="text-secondary">Загрузка…</p>
+</section>
+
+<!-- Модальное окно создания пациента -->
+<div id="createPatientModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1000;align-items:center;justify-content:center;overflow-y:auto;">
+  <div style="background:white;padding:24px;border-radius:12px;max-width:640px;width:90%;margin:40px auto;">
+    <h3 style="margin-bottom:16px;">Новый пациент</h3>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div id="cpDoctorField" style="grid-column:span 2;display:none;">
+        <label style="font-size:13px;color:var(--text-secondary);display:block;margin-bottom:6px;">
+          Лечащий врач *
+        </label>
+        <select class="input" id="cpDoctorId">
+          <option value="">— Выберите врача —</option>
+        </select>
+      </div>
+      <input class="input" id="cpFullName" placeholder="ФИО *" required style="grid-column:span 2;">
+      <select class="input" id="cpSex">
+        <option value="M">Мужской</option>
+        <option value="F">Женский</option>
+      </select>
+      <input class="input" id="cpBirthDate" type="date" required>
+      <input class="input" id="cpPhone" placeholder="Телефон">
+      <input class="input" id="cpEmail" placeholder="Email">
+      <input class="input" id="cpPolicyOms" placeholder="Полис ОМС">
+      <input class="input" id="cpBloodType" placeholder="Группа крови">
+      <input class="input" id="cpHeight" type="number" placeholder="Рост, см">
+      <input class="input" id="cpWeight" type="number" placeholder="Вес, кг">
+      <input class="input" id="cpAddress" placeholder="Адрес" style="grid-column:span 2;">
+      <textarea class="input" id="cpReason" placeholder="Причина обращения" style="grid-column:span 2;"></textarea>
+      <textarea class="input" id="cpComplaints" placeholder="Жалобы" style="grid-column:span 2;"></textarea>
+      <textarea class="input" id="cpAllergies" placeholder="Аллергии" style="grid-column:span 2;"></textarea>
+    </div>
+
+    <p id="cpStatus" style="font-size:13px;margin-top:12px;color:var(--text-secondary);"></p>
+
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+      <button class="btn btn--secondary" onclick="closeCreatePatient()">Отмена</button>
+      <button class="btn btn--primary" onclick="createPatient()">Создать</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_URL = "http://localhost:8000";
+  const token = localStorage.getItem("token");
+  const listRole = localStorage.getItem("role") || "doctor";
+  if (!token) window.location.href = "/login/";
+
+  let allPatients = [];
+  let activeLetter = "all";
+  let searchQuery = "";
+
+  function statusBadge(prediction) {
+    if (!prediction) return '<span class="badge badge--neutral">Нет данных</span>';
+    if (prediction === "no_tumor") return '<span class="badge badge--success">Норма</span>';
+    if (prediction === "glioma" || prediction === "meningioma" || prediction === "pituitary")
+      return '<span class="badge badge--warning">Обнаружено</span>';
+    return '<span class="badge badge--neutral">—</span>';
+  }
+
+  function applyFilters() {
+    let filtered = allPatients;
+
+    if (activeLetter !== "all") {
+      filtered = filtered.filter(p => {
+        const name = (p.full_name || "").trim();
+        if (!name) return false;
+        return name[0].toUpperCase() === activeLetter;
+      });
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(p =>
+        (p.full_name || "").toLowerCase().includes(q) ||
+        (p.anonymized_code || "").toLowerCase().includes(q)
+      );
+    }
+
+    renderPatients(filtered);
+  }
+
+  function renderPatients(patients) {
+    const listEl = document.getElementById("patientList");
+    if (!patients.length) {
+      listEl.innerHTML = '<p class="text-secondary">Нет пациентов</p>';
+      return;
+    }
+    listEl.innerHTML = patients.map(p => `
+      <a href="/patients/${p.id}/" class="patient-row">
+        <div class="patient-row__avatar">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        </div>
+        <div class="patient-row__info">
+          <div class="patient-row__name">${p.full_name}</div>
+          <div class="patient-row__meta">${p.anonymized_code} · ${p.age ?? "—"} лет</div>
+        </div>
+        ${statusBadge(p.last_prediction)}
+        <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+      </a>
+    `).join("");
+  }
+
+  async function loadPatients() {
+    const endpoint = listRole === "admin"
+      ? `${API_URL}/admin/patients`
+      : `${API_URL}/patients`;
+
+    try {
+      const res = await fetch(endpoint, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.status === 401) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+      if (!res.ok) throw new Error(`Ошибка ${res.status}`);
+      allPatients = await res.json();
+      applyFilters();
+    } catch (err) {
+      document.getElementById("patientList").innerHTML =
+        `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  document.querySelectorAll("#alphaFilter .alpha-filter__item").forEach(el => {
+    el.addEventListener("click", () => {
+      document.querySelectorAll("#alphaFilter .alpha-filter__item").forEach(x =>
+        x.classList.remove("alpha-filter__item--active"));
+      el.classList.add("alpha-filter__item--active");
+      activeLetter = el.dataset.letter;
+      applyFilters();
+    });
+  });
+
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    applyFilters();
+  });
+
+  // === Создание пациента ===
+async function openCreatePatient() {
+  // Сбрасываем поля
+  document.getElementById("cpFullName").value = "";
+  document.getElementById("cpSex").value = "M";
+  document.getElementById("cpBirthDate").value = "";
+  document.getElementById("cpPhone").value = "";
+  document.getElementById("cpEmail").value = "";
+  document.getElementById("cpPolicyOms").value = "";
+  document.getElementById("cpBloodType").value = "";
+  document.getElementById("cpHeight").value = "";
+  document.getElementById("cpWeight").value = "";
+  document.getElementById("cpAddress").value = "";
+  document.getElementById("cpReason").value = "";
+  document.getElementById("cpComplaints").value = "";
+  document.getElementById("cpAllergies").value = "";
+  document.getElementById("cpStatus").textContent = "";
+
+  // Поле выбора врача показываем только админу
+  if (listRole === "admin") {
+    document.getElementById("cpDoctorField").style.display = "block";
+    await loadDoctorsForSelect();
+  } else {
+    document.getElementById("cpDoctorField").style.display = "none";
+  }
+
+  document.getElementById("createPatientModal").style.display = "flex";
+}
+
+async function loadDoctorsForSelect() {
+  const select = document.getElementById("cpDoctorId");
+  select.innerHTML = '<option value="">— Выберите врача —</option>';
+
+  try {
+    const res = await fetch(`${API_URL}/doctors`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error("Не удалось загрузить врачей");
+
+    const doctors = await res.json();
+    doctors.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d.id;
+      opt.textContent = d.full_name + (d.specialty ? ` (${d.specialty})` : "");
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    select.innerHTML = `<option value="">Ошибка: ${err.message}</option>`;
+  }
+}
+
+function closeCreatePatient() {
+  document.getElementById("createPatientModal").style.display = "none";
+}
+
+async function createPatient() {
+  const statusEl = document.getElementById("cpStatus");
+
+  const fullName = document.getElementById("cpFullName").value.trim();
+  const birthDate = document.getElementById("cpBirthDate").value;
+
+  if (!fullName) {
+    statusEl.textContent = "Введите ФИО";
+    statusEl.style.color = "var(--coral)";
+    return;
+  }
+  if (!birthDate) {
+    statusEl.textContent = "Введите дату рождения";
+    statusEl.style.color = "var(--coral)";
+    return;
+  }
+
+  // Для админа — проверяем, что врач выбран
+  let doctorId = null;
+  if (listRole === "admin") {
+    doctorId = document.getElementById("cpDoctorId").value;
+    if (!doctorId) {
+      statusEl.textContent = "Выберите лечащего врача";
+      statusEl.style.color = "var(--coral)";
+      return;
+    }
+  }
+
+  statusEl.textContent = "Создание...";
+  statusEl.style.color = "var(--text-secondary)";
+
+  const payload = {
+    full_name: fullName,
+    sex: document.getElementById("cpSex").value,
+    birth_date: birthDate,
+    phone: document.getElementById("cpPhone").value.trim() || null,
+    email: document.getElementById("cpEmail").value.trim() || null,
+    policy_oms: document.getElementById("cpPolicyOms").value.trim() || null,
+    blood_type: document.getElementById("cpBloodType").value.trim() || null,
+    height_cm: parseInt(document.getElementById("cpHeight").value) || null,
+    weight_kg: parseInt(document.getElementById("cpWeight").value) || null,
+    address: document.getElementById("cpAddress").value.trim() || null,
+    reason: document.getElementById("cpReason").value.trim() || null,
+    complaints: document.getElementById("cpComplaints").value.trim() || null,
+    allergies: document.getElementById("cpAllergies").value.trim() || null,
+    doctor_id: doctorId,       // ← null для врача, id для админа
+  };
+
+  try {
+    const res = await fetch(`${API_URL}/patients`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `Ошибка ${res.status}`);
+    }
+
+    statusEl.textContent = "Пациент создан";
+    statusEl.style.color = "var(--success)";
+
+    await loadPatients();
+    setTimeout(closeCreatePatient, 500);
+  } catch (err) {
+    statusEl.textContent = `Ошибка: ${err.message}`;
+    statusEl.style.color = "var(--coral)";
+  }
+}
+
+// Закрытие по клику вне окна
+document.getElementById("createPatientModal").addEventListener("click", (e) => {
+  if (e.target.id === "createPatientModal") closeCreatePatient();
+});
+
+  loadPatients();
+</script>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Все пациенты — AI-MRI{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <h1 class="page-title">Все пациенты</h1>
+  <p class="page-subtitle">Полный список пациентов системы (только для администратора).</p>
+</header>
+
+<section class="patient-list" id="patientList">
+  <p class="text-secondary">Загрузка…</p>
+</section>
+
+<script>
+  const API_URL = "http://localhost:8000";
+  const adminToken = localStorage.getItem("token");
+  const adminRole = localStorage.getItem("role");
+  if (!adminToken) window.location.href = "/login/";
+  if (adminRole !== "admin") window.location.href = "/patients/";
+
+  async function loadPatients() {
+    const listEl = document.getElementById("patientList");
+    try {
+      const res = await fetch(`${API_URL}/admin/patients`, {
+        headers: { "Authorization": `Bearer ${adminToken}` }
+      });
+      if (res.status === 401 || res.status === 403) {
+        localStorage.clear();
+        window.location.href = "/login/";
+        return;
+      }
+      const patients = await res.json();
+      if (!patients.length) {
+        listEl.innerHTML = '<p class="text-secondary">Нет пациентов</p>';
+        return;
+      }
+      listEl.innerHTML = patients.map(p => `
+        <a href="/patients/${p.id}/" class="patient-row">
+          <div class="patient-row__avatar">
+            <span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          </div>
+          <div class="patient-row__info">
+            <div class="patient-row__name">${p.full_name}</div>
+            <div class="patient-row__meta">${p.anonymized_code} · ${p.age ?? "—"} лет</div>
+          </div>
+          <span class="icon patient-row__arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+        </a>
+      `).join("");
+    } catch (err) {
+      listEl.innerHTML = `<p class="text-secondary">Ошибка: ${err.message}</p>`;
+    }
+  }
+
+  loadPatients();
+</script>
+{% endblock %}
