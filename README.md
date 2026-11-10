@@ -268,5 +268,5 @@ curl -H "Authorization: Bearer ТОКЕН" http://localhost:8000/patients
 ### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/DariaVazh/Innovations_in_medicine.git
-cd Innovations_in_medicine
+git clone https://github.com/AlinaErshova1/CaseMedicine.git
+cd CaseMedicine
