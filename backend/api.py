@@ -42,6 +42,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:8001",
         "http://127.0.0.1:8001",
+        "https://calmly-liked-midge.cloudpub.ru",
+        # "https://starkly-loving-hermit.cloudpub.ru"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -227,6 +229,8 @@ def list_studies(
             "confidence": s.confidence,
             "status": s.status,
             "created_at": s.created_at.isoformat(),
+            "manual_annotation": s.manual_annotation,
+            "manual_overlay_url": f"/files/processed/{Path(s.manual_overlay_path).name}" if s.manual_overlay_path else None,
         }
         for s in studies
     ]
@@ -313,6 +317,69 @@ def analyze_study(
             "area_pct": seg_result["area_pct"] if seg_result else None,
             "has_tumor": seg_result["has_tumor"] if seg_result else None,
         },
+    }
+
+@app.post("/studies/{study_id}/annotate")
+def annotate_study(
+    study_id: str,
+    payload: dict,
+    user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Сохранение ручного выделения врача.
+    payload: {"points": [[x1, y1], [x2, y2], ...]}
+    """
+    import json
+    import cv2
+    import numpy as np
+
+    user_id = user["user_id"]
+    study = db.query(Study).filter(Study.id == study_id).first()
+    if not study:
+        raise HTTPException(status_code=404, detail="Исследование не найдено")
+
+    points = payload.get("points", [])
+    if not points:
+        raise HTTPException(status_code=400, detail="Нет точек для сохранения")
+
+    # 1. Сохраняем JSON с координатами
+    study.manual_annotation = json.dumps(points)
+
+    # 2. Рендерим маску и накладываем на оригинал
+    original_path = Path(__file__).parent / study.original_path
+    if not original_path.exists():
+        raise HTTPException(status_code=500, detail="Оригинал не найден")
+
+    img = cv2.imread(str(original_path))
+    if img is None:
+        raise HTTPException(status_code=500, detail="Не удалось прочитать оригинал")
+
+    h, w = img.shape[:2]
+    mask = np.zeros((h, w), dtype=np.uint8)
+
+    pts = np.array(points, dtype=np.int32)
+    if len(pts) >= 3:
+        cv2.fillPoly(mask, [pts], 255)
+
+    # Накладываем маску (красный цвет: BGR = (60, 60, 255))
+    overlay = img.copy()
+    overlay[mask > 0] = (60, 60, 255)
+    blended = cv2.addWeighted(img, 0.55, overlay, 0.45, 0)
+
+    # Сохраняем результат
+    manual_name = f"manual_overlay_{uuid.uuid4()}.png"
+    manual_path = PROCESSED_DIR / manual_name
+    cv2.imwrite(str(manual_path), blended)
+
+    study.manual_overlay_path = f"uploads/processed/{manual_name}"
+    db.commit()
+
+    write_log("annotate_study", user_id, f"study_id={study_id}")
+
+    return {
+        "study_id": str(study.id),
+        "manual_overlay_url": f"/files/processed/{manual_name}",
     }
 
 # === Админ-эндпоинты ===
