@@ -10,6 +10,13 @@ IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff")
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
 
+
+class MulticlassSegmentationDataset(Dataset):
+    """
+    Датасет для многоклассовой сегментации (опухоль, отёк и т.д.).
+    Ожидает список пар (путь_к_картинке, путь_к_маске).
+    """
+
     def __init__(self, pairs, transform=None):
         self.pairs = pairs
         self.transform = transform
@@ -41,23 +48,34 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
             img = torch.from_numpy(img.transpose(2, 0, 1)).float()
             mask = cv2.resize(mask, (256, 256), interpolation=cv2.INTER_NEAREST)
 
-
         return img, mask
 
+
+def find_multiclass_pairs(images_root, masks_root, class_names):
+    """Ищет соответствия между картинками и масками по классам."""
     images_root = Path(images_root)
     masks_root = Path(masks_root)
     pairs = []
-    
+
     for cls in class_names:
         img_dir = images_root / cls
         mask_dir = masks_root / cls
-        if not mask_dir.is_dir():
+        if not img_dir.is_dir() or not mask_dir.is_dir():
             continue
-            
+
+        # Собираем маски в словарь для быстрого поиска по имени файла
+        mask_map = {}
+        for ext in IMG_EXTS:
+            for m_path in mask_dir.glob(f"*{ext}"):
+                mask_map[m_path.stem] = m_path
+
         for ext in IMG_EXTS:
             for img_path in sorted(img_dir.glob(f"*{ext}")):
                 if img_path.stem in mask_map:
                     pairs.append((img_path, mask_map[img_path.stem]))
+
+    return pairs
+
 
 def get_seg_transforms(img_size=256, is_train=True):
     if is_train:

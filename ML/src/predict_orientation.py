@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from PIL import Image
 import numpy as np
 
-from .config import CFG
+
 from .model import build_model
 from .transforms import get_val_transforms
 
@@ -50,7 +50,7 @@ def predict_slice_orientation(img_path, ckpt_path, device="cpu"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--image", type=str, required=True, help="Путь к МРТ-снимку")
-    parser.add_argument("--ckpt", type=str, default="checkpoints/best_orientation_model.pth")
+    parser.add_argument("--ckpt", type=str, default="checkpoints/best_efficientnet_orientation.pth")
     args = parser.parse_args()
 
     predict_slice_orientation(args.image, args.ckpt)

@@ -3,15 +3,15 @@ CLI для визуализации Grad-CAM на одном или нескол
 
 Примеры:
     # Одно изображение
-    python -m src.visualize --ckpt checkpoints/best_efficientnet_b0.pth \
+    python -m src.visualize --ckpt checkpoints/best_efficientnet_orientation.pth \
         --image data/test/glioma/Te-gl_0010.png
 
     # С bbox вокруг зоны интереса
-    python -m src.visualize --ckpt checkpoints/best_efficientnet_b0.pth \
+    python -m src.visualize --ckpt checkpoints/best_efficientnet_orientation.pth \
         --image data/test/glioma/Te-gl_0010.png --bbox --save out.png
 
     # Батч: по одному примеру каждого класса из data/test
-    python -m src.visualize --ckpt checkpoints/best_efficientnet_b0.pth \
+    python -m src.visualize --ckpt checkpoints/best_efficientnet_orientation.pth \
         --batch data/test --per_class 3 --save_dir checkpoints/gradcam
 """
 import argparse

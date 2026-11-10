@@ -22,7 +22,7 @@ from ML.src.transforms import get_tta_transforms, get_val_transforms
 from ML.src.gradcam_utils import GradCAM, overlay_heatmap
 
 # === Загружаем модель один раз при импорте ===
-DEFAULT_CKPT = ML_DIR / "checkpoints" / "best_efficientnet_b0.pth"
+DEFAULT_CKPT = ML_DIR / "checkpoints" / "best_efficientnet_orientation.pth"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 _model = None

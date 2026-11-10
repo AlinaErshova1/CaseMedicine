@@ -13,7 +13,6 @@ class Config:
 
     # Классы (порядок важен — соответствует индексам 0..3)
     # В файле config.py для задачи определения среза:
-    class_names: tuple = ("axial", "coronal", "sagittal")
     num_classes: int = 3
     tumor_class_indices: tuple = (0, 1, 2)
 

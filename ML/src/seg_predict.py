@@ -17,7 +17,8 @@ import torch.nn.functional as F
 import cv2
 import matplotlib.pyplot as plt
 
-from .seg_model import build_unet
+# Стало:
+from .seg_model import build_multiclass_unet as build_unet
 from .seg_dataset import IMAGENET_MEAN, IMAGENET_STD
 
 
@@ -96,7 +97,7 @@ def main():
     print(f"[INFO] Model epoch={ckpt.get('epoch')}, "
           f"metrics={ckpt.get('metrics')}")
 
-    model = build_unet(pretrained=False)
+    model = build_unet(num_classes=1, pretrained=False)
     model.load_state_dict(ckpt["model_state"])
     model.to(device).eval()
 
