@@ -107,6 +107,10 @@ class Study(Base):
     original_path = Column(String)
     result_path = Column(String, nullable=True)
 
+    # === Ручное выделение ===
+    manual_annotation = Column(Text, nullable=True)       # Тут будут храниться координаты (JSON)
+    manual_overlay_path = Column(String, nullable=True)   # Тут будет путь к картинке с наложением
+
     prediction = Column(String, nullable=True)   # glioma / meningioma / pituitary / no_tumor
     confidence = Column(Float, nullable=True)
     status = Column(String, default="pending")   # pending / done / error

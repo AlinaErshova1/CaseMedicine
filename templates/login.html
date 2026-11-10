@@ -115,9 +115,13 @@ document.getElementById("forgotPassword").addEventListener("click", (e) => {
 
     try {
       const res = await fetch(
-        `http://localhost:8000/auth/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,
+        `https://starkly-loving-hermit.cloudpub.ru/auth/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,
         { method: "POST" }
       );
+<!--      const res = await fetch(-->
+<!--        `http://localhost:8000/auth/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,-->
+<!--        { method: "POST" }-->
+<!--      );-->
 
       if (!res.ok) {
         const detail = await res.json().catch(() => ({}));

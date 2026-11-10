@@ -1,8 +1,8 @@
 // static/js/api.js
 // Общий модуль для работы с FastAPI
 
-const API_URL = "http://localhost:8000";
-
+//const API_URL = "http://localhost:8000";
+const API_URL = "https://starkly-loving-hermit.cloudpub.ru";
 /**
  * Логин врача. Возвращает {access_token, token_type, doctor}.
  */

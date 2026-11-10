@@ -61,9 +61,31 @@
     </p>
   </div>
 </div>
+<div id="manualAnnotateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;align-items:center;justify-content:center;">
+  <div style="background:white;padding:20px;border-radius:12px;max-width:900px;width:95%;max-height:95vh;overflow:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 id="annotateTitle">Ручное выделение опухоли</h3>
+      <button onclick="closeAnnotateModal()" style="font-size:20px;background:none;border:none;cursor:pointer;">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
+      Зажмите ЛКМ и обведите опухоль. Отпустите — линия замкнётся.
+    </p>
+    <div style="position:relative;display:inline-block;">
+      <img id="annotateBaseImage" style="max-width:100%;display:block;border-radius:8px;" alt="Оригинал">
+      <canvas id="annotateCanvas" style="position:absolute;top:0;left:0;cursor:crosshair;"></canvas>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end;">
+      <button class="btn btn--secondary" onclick="clearAnnotation()">Очистить</button>
+      <button class="btn btn--secondary" onclick="closeAnnotateModal()">Отмена</button>
+      <button class="btn btn--primary" onclick="saveAnnotation()">Сохранить</button>
+    </div>
+    <p id="annotateStatus" style="font-size:13px;color:var(--text-secondary);margin-top:8px;"></p>
+  </div>
+</div>
 
 <script>
-  const API_URL = "http://localhost:8000";
+<!--  const API_URL = "http://localhost:8000";-->
+  const API_URL = "https://starkly-loving-hermit.cloudpub.ru";
   const token = localStorage.getItem("token");
   const detailRole = localStorage.getItem("role") || "doctor";
   const isAdmin = detailRole === "admin";
@@ -255,6 +277,23 @@
             <div style="display:flex;gap:8px;align-items:center;">
               <span class="badge badge--${s.status === 'done' ? 'success' : 'neutral'}">${s.status === 'done' ? 'Готово' : 'Ожидает'}</span>
               ${isAdmin ? `<button class="btn btn--secondary" style="font-size:12px;color:var(--coral);border-color:var(--coral);" onclick="deleteStudy('${s.id}')">Удалить</button>` : ""}
+
+              <!-- Кнопки ручного выделения -->
+              ${s.manual_overlay_url ? `
+                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
+                        onclick="openManualView('${s.id}', '${API_URL}${s.manual_overlay_url}', '${API_URL}${s.original_url}')">
+                  Посмотреть ручное выделение
+                </button>
+                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
+                        onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
+                  Редактировать
+                </button>
+              ` : `
+                <button class="btn btn--secondary" style="font-size:12px; margin-left:8px;"
+                        onclick="openAnnotateModal('${s.id}', '${API_URL}${s.original_url}')">
+                  Выделить вручную
+                </button>
+              `}
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
@@ -417,6 +456,194 @@
     if (e.target.id === "editPatientModal") closeEditPatient();
   });
 
+    // === РУЧНОЕ ВЫДЕЛЕНИЕ ===
+  let currentStudyId = null;
+  let drawing = false;
+  let currentPath = [];
+  let allPolygons = [];
+
+  function openAnnotateModal(studyId, originalUrl) {
+    currentStudyId = studyId;
+    document.getElementById("annotateTitle").textContent = "Ручное выделение опухоли";
+    document.getElementById("annotateStatus").textContent = "";
+    document.getElementById("manualAnnotateModal").style.display = "flex";
+
+    const img = document.getElementById("annotateBaseImage");
+    const canvas = document.getElementById("annotateCanvas");
+
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.style.width = img.offsetWidth + "px";
+      canvas.style.height = img.offsetHeight + "px";
+
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      allPolygons = [];
+      currentPath = [];
+    };
+    img.src = originalUrl;
+  }
+
+  function closeAnnotateModal() {
+    document.getElementById("manualAnnotateModal").style.display = "none";
+  }
+
+  function clearAnnotation() {
+    allPolygons = [];
+    currentPath = [];
+    const canvas = document.getElementById("annotateCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    document.getElementById("annotateStatus").textContent = "";
+  }
+
+  function bindAnnotateEvents() {
+    const canvas = document.getElementById("annotateCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    function getCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
+    }
+
+    function redraw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 3;
+
+      allPolygons.forEach(poly => {
+        if (poly.length < 2) return;
+        ctx.beginPath();
+        ctx.moveTo(poly[0][0], poly[0][1]);
+        poly.forEach(p => ctx.lineTo(p[0], p[1]));
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255, 60, 60, 0.3)";
+        ctx.fill();
+      });
+
+      if (currentPath.length > 0) {
+        ctx.beginPath();
+        ctx.moveTo(currentPath[0][0], currentPath[0][1]);
+        currentPath.forEach(p => ctx.lineTo(p[0], p[1]));
+        ctx.strokeStyle = "red";
+        ctx.stroke();
+      }
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      drawing = true;
+      currentPath = [getCoords(e)];
+      redraw();
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (!drawing) return;
+      const c = getCoords(e);
+      const last = currentPath[currentPath.length - 1];
+      if (Math.hypot(c.x - last[0], c.y - last[1]) < 2) return;
+      currentPath.push([c.x, c.y]);
+      redraw();
+    });
+
+    function finishDrawing() {
+      if (!drawing) return;
+      drawing = false;
+      if (currentPath.length > 2) {
+        allPolygons.push([...currentPath]);
+        document.getElementById("annotateStatus").textContent = `Выделено контуров: ${allPolygons.length}`;
+      }
+      currentPath = [];
+      redraw();
+    }
+
+    canvas.addEventListener("mouseup", finishDrawing);
+    canvas.addEventListener("mouseleave", finishDrawing);
+  }
+
+  async function saveAnnotation() {
+    if (allPolygons.length === 0) {
+      document.getElementById("annotateStatus").textContent = "Нарисуйте хотя бы один контур";
+      document.getElementById("annotateStatus").style.color = "var(--coral)";
+      return;
+    }
+
+    const statusEl = document.getElementById("annotateStatus");
+    statusEl.textContent = "Сохранение...";
+    statusEl.style.color = "var(--text-secondary)";
+
+    const points = allPolygons.flat();
+
+    try {
+      const res = await fetch(`${API_URL}/studies/${currentStudyId}/annotate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ points: points })
+      });
+      if (!res.ok) throw new Error("Ошибка сохранения");
+
+      statusEl.textContent = "Сохранено!";
+      statusEl.style.color = "var(--success)";
+      await loadStudies();
+      setTimeout(closeAnnotateModal, 800);
+    } catch (err) {
+      statusEl.textContent = `Ошибка: ${err.message}`;
+      statusEl.style.color = "var(--coral)";
+    }
+  }
+
+  function openManualView(studyId, overlayUrl, originalUrl) {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Сравнение выделения</title>
+        <style>
+          body { margin: 0; background: #111; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+          h2 { margin: 10px 0; }
+          .container { display: flex; width: 100vw; height: 90vh; justify-content: center; align-items: center; gap: 20px; }
+          .image-box { position: relative; width: 45%; height: 100%; display: flex; justify-content: center; align-items: center; }
+          .image-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+          .overlay-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+          .image-box:hover .overlay-img { opacity: 1; }
+          .label { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 5px; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <h2>Наведите на правое изображение, чтобы увидеть маску</h2>
+        <div class="container">
+          <div class="image-box">
+            <div class="label">Оригинал</div>
+            <img src="${originalUrl}">
+          </div>
+          <div class="image-box">
+            <div class="label">С выделением</div>
+            <img src="${originalUrl}">
+            <img src="${overlayUrl}" class="overlay-img">
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    const newWindow = window.open("", "_blank");
+    newWindow.document.write(html);
+    newWindow.document.close();
+  }
+  // === КОНЕЦ РУЧНОГО ВЫДЕЛЕНИЯ ===
+
   // === Инициализация ===
   async function init() {
     await loadPatient();
@@ -424,6 +651,7 @@
       document.getElementById("adminActions").style.display = "block";
     }
     bindUploadButton();
+    bindAnnotateEvents();
     loadStudies();
   }
 
