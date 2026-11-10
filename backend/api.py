@@ -348,7 +348,7 @@ def annotate_study(
     }
 
 
-# === Админ-эндпоинты ===
+# == Админ-эндпоинты ===
 from pydantic import BaseModel
 
 class CreateDoctorRequest(BaseModel):
