@@ -317,7 +317,13 @@
       listEl.innerHTML = studies.map(s => `
         <div style="border:1px solid var(--border);border-radius:12px;padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:13px;color:var(--text-secondary);">${formatDateTime(s.created_at)}</div>
+            <!-- Левая часть: дата и проекция -->
+            <div style="font-size:13px;color:var(--text-secondary);">
+                ${formatDateTime(s.created_at)}
+                ${s.slice_orientation ? `· <span style="font-weight:600; color:var(--accent);">${s.slice_orientation.toUpperCase()}</span>` : ""}
+            </div>
+
+            <!-- Правая часть: статус и кнопка удаления -->
             <div style="display:flex;gap:8px;align-items:center;">
               <span class="badge badge--${s.status === 'done' ? 'success' : 'neutral'}">${s.status === 'done' ? 'Готово' : 'Ожидает'}</span>
               ${isAdmin ? `<button class="btn btn--secondary" style="font-size:12px;color:var(--coral);border-color:var(--coral);" onclick="deleteStudy('${s.id}')">Удалить</button>` : ""}
@@ -341,7 +347,7 @@
             `}
           </div>
           ${s.prediction ? `
-            <div style="font-size:13px;">
+            <div style="font-size:13px; margin-top:12px;">
               <b>Результат:</b> ${humanPrediction(s.prediction)} ·
               <b>Вероятность:</b> ${s.confidence != null ? Math.round(s.confidence * 100) + "%" : "—"}
             </div>

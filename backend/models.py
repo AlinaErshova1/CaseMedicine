@@ -109,7 +109,11 @@ class Study(Base):
 
     prediction = Column(String, nullable=True)   # glioma / meningioma / pituitary / no_tumor
     confidence = Column(Float, nullable=True)
-    status = Column(String, default="pending")   # pending / done / error
+    status = Column(String, default="pending")
+    slice_orientation = Column(String, nullable=True) # axial, coronal, sagittal
+
+    manual_annotation = Column(Text, nullable=True)
+    manual_overlay_path = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=msk_now)
     processed_at = Column(DateTime, nullable=True)

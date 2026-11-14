@@ -231,6 +231,7 @@ def list_studies(
             "created_at": s.created_at.isoformat(),
             "manual_annotation": s.manual_annotation,
             "manual_overlay_url": f"/files/processed/{Path(s.manual_overlay_path).name}" if s.manual_overlay_path else None,
+            "slice_orientation": s.slice_orientation,
         }
         for s in studies
     ]
@@ -267,6 +268,19 @@ def analyze_study(
     if not original.exists():
         raise HTTPException(status_code=500, detail="Оригинальный файл не найден на диске")
 
+    original = Path(__file__).parent / study.original_path
+    if not original.exists():
+        raise HTTPException(status_code=500, detail="Оригинальный файл не найден на диске")
+
+    from orientation_predictor import predict_orientation
+    try:
+        orient_result = predict_orientation(str(original))
+        study.slice_orientation = orient_result["orientation"]  # <--- Пишем в отдельное поле
+        db.commit()
+        print(f"[analyze] Плоскость снимка: {orient_result['orientation']}")
+    except Exception as e:
+        print(f"[analyze] Ошибка определения плоскости: {e}")
+
     # === 1. КЛАССИФИКАТОР (тип опухоли) ===
     from cv_predictor import predict as cv_predict
 
@@ -286,8 +300,7 @@ def analyze_study(
         # Не падаем — если U-Net не сработал, показываем хотя бы классификацию
         seg_result = None
 
-    # === 3. Сохраняем результат ===
-    # Используем overlay от U-Net, если он есть. Иначе — из классификатора.
+    # 3. Сохраняем результат
     if seg_result and seg_result.get("overlay_path"):
         src = Path(seg_result["overlay_path"])
     else:
