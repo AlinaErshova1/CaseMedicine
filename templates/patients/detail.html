@@ -329,29 +329,70 @@
               ${isAdmin ? `<button class="btn btn--secondary" style="font-size:12px;color:var(--coral);border-color:var(--coral);" onclick="deleteStudy('${s.id}')">Удалить</button>` : ""}
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px;">
-            <div>
-              <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Оригинал</div>
-              <img src="${API_URL}${s.original_url}" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Оригинал">
-            </div>
-            ${s.result_url ? `
+                    ${s.result_url ? `
+            <!-- Если анализ ЕСТЬ, показываем картинку с переключателем и форму справа -->
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;margin-bottom:12px;">
+
+              <!-- ЛЕВАЯ ЧАСТЬ: Картинка и переключатель -->
               <div>
-                <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Результат ИИ</div>
-                <img src="${API_URL}${s.result_url}" style="width:100%;border-radius:8px;border:1px solid var(--border);" alt="Результат">
+                <div style="position:relative;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+                  <img id="img-display-${s.id}" src="${API_URL}${s.result_url}" style="width:100%;display:block;" alt="Снимок">
+                </div>
+
+                <!-- Кнопка переключения -->
+                <div style="text-align:center;margin-top:12px;">
+                  <button class="btn btn--secondary" id="btn-toggle-${s.id}" onclick="toggleImage('${s.id}', '${API_URL}${s.original_url}', '${API_URL}${s.result_url}')">
+                    Показать оригинал
+                  </button>
+                </div>
+                </div>
+
+              <!-- ПРАВАЯ ЧАСТЬ: Форма проверки -->
+              <div style="background:var(--bg-main);padding:16px;border-radius:8px;border:1px solid var(--border);">
+                <h4 style="margin-bottom:16px;font-size:15px;font-weight:600;">Проверьте корректность данных</h4>
+
+                <!-- Поле 1: Тип опухоли -->
+                <div style="margin-bottom:16px;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">
+                    Тип опухоли (ИИ)
+                    ${s.confidence != null ? `<span style="font-weight:normal; color:var(--text-secondary);">— уверенность ${Math.round(s.confidence * 100)}%</span>` : ""}
+                  </label>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" class="input" style="flex:1;" value="${humanPrediction(s.prediction)}" id="input-type-${s.id}">
+                    <input type="checkbox" id="check-type-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  </div>
+                </div>
+
+                <!-- Поле 2: Проекция -->
+                <div style="margin-bottom:16px;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Проекция снимка (ИИ)</label>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" class="input" style="flex:1;" value="${s.slice_orientation ? s.slice_orientation.toUpperCase() : '—'}" id="input-proj-${s.id}">
+                    <input type="checkbox" id="check-proj-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  </div>
+                </div>
+
+                <!-- Поле 3: Местоположение (заглушка для будущего) -->
+                <div style="margin-bottom:16px;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Локализация (ИИ)</label>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" class="input" style="flex:1;" value="Не реализовано" disabled>
+                    <input type="checkbox" id="check-loc-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  </div>
+                </div>
+
+                <button class="btn btn--primary" style="width:100%;margin-top:8px;" onclick="saveVerification('${s.id}')">Сохранить проверку</button>
+                                <p id="verify-status-${s.id}" style="color:var(--coral); font-size:13px; margin-top:8px; text-align:center; min-height:18px;"></p>
               </div>
-            ` : `
-              <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;background:var(--bg-main);border-radius:8px;border:1px dashed var(--border);padding:20px;">
-                <p class="text-secondary" style="font-size:12px;margin-bottom:8px;">Анализ не проведён</p>
-                <button class="btn btn--secondary" onclick="analyzeStudy('${s.id}')" style="font-size:12px;">Провести анализ</button>
-              </div>
-            `}
-          </div>
-          ${s.prediction ? `
-            <div style="font-size:13px; margin-top:12px;">
-              <b>Результат:</b> ${humanPrediction(s.prediction)} ·
-              <b>Вероятность:</b> ${s.confidence != null ? Math.round(s.confidence * 100) + "%" : "—"}
+
             </div>
-          ` : ""}
+          ` : `
+            <!-- Если анализа НЕТ, показываем просто оригинал и кнопку -->
+            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:12px;">
+              <img src="${API_URL}${s.original_url}" style="width:100%;max-width:400px;border-radius:8px;border:1px solid var(--border);margin-bottom:16px;" alt="Оригинал">
+              <button class="btn btn--primary" onclick="analyzeStudy('${s.id}')">Провести анализ</button>
+            </div>
+          `}
 
           <div style="margin-top:12px; text-align:center; border-top:1px solid var(--border); padding-top:12px;">
             ${s.manual_annotation ? `
@@ -790,8 +831,22 @@
     };
     img.src = originalUrl;
   }
-  // === КОНЕЦ РУЧНОГО ВЫДЕЛЕНИЯ ===
+    // === ПЕРЕКЛЮЧЕНИЕ КАРТИНОК ===
+  function toggleImage(studyId, originalUrl, resultUrl) {
+    const img = document.getElementById(`img-display-${studyId}`);
+    const btn = document.getElementById(`btn-toggle-${studyId}`);
 
+    // Проверяем, что сейчас на картинке (по src)
+    if (img.src === originalUrl) {
+      img.src = resultUrl;
+      btn.textContent = "Показать оригинал";
+    } else {
+      img.src = originalUrl;
+      btn.textContent = "Показать выделение";
+    }
+  }
+
+  // === КОНЕЦ РУЧНОГО ВЫДЕЛЕНИЯ ===
   async function init() {
     await loadPatient();
     if (isAdmin) {
@@ -800,6 +855,32 @@
     bindUploadButton();
     bindAnnotateEvents();
     loadStudies();
+  }
+
+    // === ПРОВЕРКА КОРРЕКТНОСТИ ДАННЫХ ===
+  function saveVerification(studyId) {
+    // Получаем все три галочки
+    const checkType = document.getElementById(`check-type-${studyId}`);
+    const checkProj = document.getElementById(`check-proj-${studyId}`);
+    const checkLoc = document.getElementById(`check-loc-${studyId}`);
+
+    // Получаем элемент для вывода текста
+    const statusEl = document.getElementById(`verify-status-${studyId}`);
+
+    // Очищаем предыдущее сообщение
+    statusEl.textContent = "";
+
+    // Проверяем, что все они существуют и нажаты
+    if (!checkType.checked || !checkProj.checked || !checkLoc.checked) {
+      statusEl.textContent = "Пожалуйста, подтвердите все данные (поставьте все галочки).";
+      return; // Останавливаем выполнение
+    }
+
+    // Если все галочки стоят:
+    statusEl.style.color = "var(--success)"; // Меняем цвет на зеленый
+    statusEl.textContent = "Все данные успешно подтверждены!";
+
+    // В будущем здесь будет код для сохранения данных в БД
   }
 
   init();
