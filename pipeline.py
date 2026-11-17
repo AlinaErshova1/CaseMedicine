@@ -217,7 +217,7 @@ def analyze_mri_pipeline(image_path: str, results_dir: Path) -> dict:
                         dept_str = "задние отделы (затылочная/теменная зона)"
 
                 results["localization"] = f"Полушарие: {hemi_str}, Отдел: {dept_str}"
-
+# c
         except Exception as e:
             print(f"[Pipeline Warning] Ошибка U-Net / эвристики: {e}")
 

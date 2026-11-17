@@ -24,7 +24,7 @@ from ML.src.gradcam_utils import GradCAM, overlay_heatmap
 # === Загружаем модель один раз при импорте ===
 DEFAULT_CKPT = ML_DIR / "checkpoints" / "best_efficientnet_b0.pth"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+# d
 _model = None
 _class_names = None
 _img_size = None

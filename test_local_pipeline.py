@@ -45,7 +45,7 @@ def format_medical_report(results: dict, patient_code: str = "P-XXXX") -> str:
 """
     return report
 
-
+# d
 def test_local_pipeline():
     test_image_path = "D:/PycharmProjects/CaseMedicine/ML/data/test_clean/notumor/45 no.jpg"
 

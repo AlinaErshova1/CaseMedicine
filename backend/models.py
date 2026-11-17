@@ -131,3 +131,4 @@ class Study(Base):
     processed_at = Column(DateTime, nullable=True)
 
     patient = relationship("Patient", back_populates="studies")
+    # end
