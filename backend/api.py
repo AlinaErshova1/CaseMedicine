@@ -232,6 +232,16 @@ def list_studies(
             "manual_annotation": s.manual_annotation,
             "manual_overlay_url": f"/files/processed/{Path(s.manual_overlay_path).name}" if s.manual_overlay_path else None,
             "slice_orientation": s.slice_orientation,
+            # ДОБАВИТЬ ВОТ ЭТИ 4 СТРОКИ:
+            "area_pct": s.area_pct,
+            "localization": s.localization,
+            "is_verified": s.is_verified,
+            "verified_data": {
+                "prediction": s.verified_prediction,
+                "orientation": s.verified_orientation,
+                "area_pct": s.verified_area_pct,
+                "localization": s.verified_localization
+            } if s.is_verified else None,
         }
         for s in studies
     ]
@@ -255,9 +265,9 @@ def get_processed_file(filename: str):
 
 @app.post("/studies/{study_id}/analyze")
 def analyze_study(
-    study_id: str,
-    user: dict = Depends(get_current_user),
-    db: Session = Depends(get_db),
+        study_id: str,
+        user: dict = Depends(get_current_user),
+        db: Session = Depends(get_db),
 ):
     user_id = user["user_id"]
     study = db.query(Study).filter(Study.id == study_id).first()
@@ -268,52 +278,27 @@ def analyze_study(
     if not original.exists():
         raise HTTPException(status_code=500, detail="Оригинальный файл не найден на диске")
 
-    original = Path(__file__).parent / study.original_path
-    if not original.exists():
-        raise HTTPException(status_code=500, detail="Оригинальный файл не найден на диске")
-
-    from orientation_predictor import predict_orientation
-    try:
-        orient_result = predict_orientation(str(original))
-        study.slice_orientation = orient_result["orientation"]  # <--- Пишем в отдельное поле
-        db.commit()
-        print(f"[analyze] Плоскость снимка: {orient_result['orientation']}")
-    except Exception as e:
-        print(f"[analyze] Ошибка определения плоскости: {e}")
-
-    # === 1. КЛАССИФИКАТОР (тип опухоли) ===
-    from cv_predictor import predict as cv_predict
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from pipeline import analyze_mri_pipeline
 
     try:
-        cls_result = cv_predict(str(original), use_tta=True)
+        cv_results = analyze_mri_pipeline(str(original), PROCESSED_DIR)
     except Exception as e:
         write_log("cv_error", user_id, f"study_id={study_id} error={str(e)}")
-        raise HTTPException(status_code=500, detail=f"Ошибка классификатора: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Ошибка CV-модуля: {str(e)}")
 
-    # === 2. U-NET (сегментация) ===
-    from unet_predictor import predict_mask as unet_predict
+    if cv_results.get('result_path'):
+        study.result_path = f"uploads/processed/{Path(cv_results['result_path']).name}"
+    if cv_results.get('mask_path'):
+        study.mask_path = f"uploads/processed/{Path(cv_results['mask_path']).name}"
 
-    try:
-        seg_result = unet_predict(str(original))
-    except Exception as e:
-        write_log("unet_error", user_id, f"study_id={study_id} error={str(e)}")
-        # Не падаем — если U-Net не сработал, показываем хотя бы классификацию
-        seg_result = None
+    study.prediction = cv_results["prediction"]
+    study.confidence = cv_results["confidence"]
+    study.slice_orientation = cv_results["orientation"]
 
-    # 3. Сохраняем результат
-    if seg_result and seg_result.get("overlay_path"):
-        src = Path(seg_result["overlay_path"])
-    else:
-        src = Path(cls_result["result_path"])
+    study.area_pct = cv_results["area_pct"]
+    study.localization = cv_results["localization"]
 
-    processed_name = src.name
-    processed_final = PROCESSED_DIR / processed_name
-    if src != processed_final:
-        shutil.copyfile(src, processed_final)
-
-    study.result_path = f"uploads/processed/{processed_name}"
-    study.prediction = cls_result["prediction"]
-    study.confidence = cls_result["confidence"]
     study.status = "done"
     study.processed_at = datetime.now(MSK).replace(tzinfo=None)
     db.commit()
@@ -325,11 +310,10 @@ def analyze_study(
         "status": study.status,
         "prediction": study.prediction,
         "confidence": study.confidence,
-        "result_url": f"/files/processed/{processed_name}",
-        "segmentation": {
-            "area_pct": seg_result["area_pct"] if seg_result else None,
-            "has_tumor": seg_result["has_tumor"] if seg_result else None,
-        },
+        "slice_orientation": study.slice_orientation,
+        "area_pct": study.area_pct,
+        "localization": study.localization,
+        "result_url": f"/files/processed/{Path(study.result_path).name}",
     }
 
 @app.post("/studies/{study_id}/annotate")
@@ -360,6 +344,44 @@ def annotate_study(
         "manual_annotation": study.manual_annotation,
     }
 
+
+from pydantic import BaseModel
+
+
+class VerifyStudyRequest(BaseModel):
+    verified_prediction: str
+    verified_orientation: str
+    verified_area_pct: str
+    verified_localization: str
+
+
+@app.patch("/studies/{study_id}/verify")
+def verify_study(
+        study_id: str,
+        payload: VerifyStudyRequest,
+        user: dict = Depends(get_current_user),
+        db: Session = Depends(get_db),
+):
+    user_id = user["user_id"]
+    study = db.query(Study).filter(Study.id == study_id).first()
+    if not study:
+        raise HTTPException(status_code=404, detail="Исследование не найдено")
+
+    study.verified_prediction = payload.verified_prediction
+    study.verified_orientation = payload.verified_orientation
+    study.verified_area_pct = payload.verified_area_pct
+    study.verified_localization = payload.verified_localization
+    study.is_verified = True
+    study.verified_at = datetime.now(MSK).replace(tzinfo=None)
+
+    # Привязываем к врачу, который сохранил (если это врач)
+    if user["role"] == "doctor":
+        study.verified_by = user_id
+
+    db.commit()
+    write_log("verify_study", user_id, f"study_id={study_id}")
+
+    return {"ok": True, "status": "verified"}
 
 # == Админ-эндпоинты ===
 from pydantic import BaseModel

@@ -123,6 +123,7 @@
     </div>
   </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
   // Укажи здесь свой актуальный URL (локальный или туннель)
@@ -347,7 +348,7 @@
                 </div>
                 </div>
 
-              <!-- ПРАВАЯ ЧАСТЬ: Форма проверки -->
+                            <!-- ПРАВАЯ ЧАСТЬ: Форма проверки -->
               <div style="background:var(--bg-main);padding:16px;border-radius:8px;border:1px solid var(--border);">
                 <h4 style="margin-bottom:16px;font-size:15px;font-weight:600;">Проверьте корректность данных</h4>
 
@@ -357,35 +358,69 @@
                     Тип опухоли (ИИ)
                     ${s.confidence != null ? `<span style="font-weight:normal; color:var(--text-secondary);">— уверенность ${Math.round(s.confidence * 100)}%</span>` : ""}
                   </label>
-                  <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="text" class="input" style="flex:1;" value="${humanPrediction(s.prediction)}" id="input-type-${s.id}">
-                    <input type="checkbox" id="check-type-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" class="input" style="flex:1;" value="${s.is_verified ? s.verified_data.prediction : humanPrediction(s.prediction)}" id="input-type-${s.id}">
+                    <input type="checkbox" id="check-type-${s.id}" title="Подтвердить" style="width:24px; height:24px; cursor:pointer; accent-color: #2563eb;" ${s.is_verified ? 'checked' : ''}>
                   </div>
                 </div>
 
                 <!-- Поле 2: Проекция -->
                 <div style="margin-bottom:16px;">
                   <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Проекция снимка (ИИ)</label>
-                  <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="text" class="input" style="flex:1;" value="${s.slice_orientation ? s.slice_orientation.toUpperCase() : '—'}" id="input-proj-${s.id}">
-                    <input type="checkbox" id="check-proj-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" class="input" style="flex:1;"
+                           value="${s.is_verified ? s.verified_data.orientation : (s.slice_orientation ? s.slice_orientation.toUpperCase() : '—')}"
+                           id="input-proj-${s.id}">
+                    <input type="checkbox" id="check-proj-${s.id}" title="Подтвердить" style="width:24px; height:24px; cursor:pointer; accent-color: #2563eb;" ${s.is_verified ? 'checked' : ''}>
                   </div>
                 </div>
 
-                <!-- Поле 3: Местоположение (заглушка для будущего) -->
+                <!-- Поле 3: Площадь -->
                 <div style="margin-bottom:16px;">
-                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Локализация (ИИ)</label>
-                  <div style="display:flex;gap:8px;align-items:center;">
-                    <input type="text" class="input" style="flex:1;" value="Не реализовано" disabled>
-                    <input type="checkbox" id="check-loc-${s.id}" title="Подтвердить" style="width:20px;height:20px;cursor:pointer;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Площадь поражения (ИИ)</label>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" class="input" style="flex:1;"
+                           value="${s.is_verified ? s.verified_data.area_pct : (s.area_pct != null ? s.area_pct + '%' : '—')}"
+                           id="input-area-${s.id}">
+                    <input type="checkbox" id="check-area-${s.id}" title="Подтвердить" style="width:24px; height:24px; cursor:pointer; accent-color: #2563eb;" ${s.is_verified ? 'checked' : ''}>
+                  </div>
+                </div>
+
+                                <!-- Поле 4.1: Полушарие -->
+                <div style="margin-bottom:16px;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Полушарие (ИИ)</label>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" class="input" style="flex:1;"
+                           value="${s.is_verified
+                                ? (s.verified_data.localization ? (s.verified_data.localization.split(',').find(x => x.includes('Полушарие'))?.replace('Полушарие:', '').trim() || '—') : '—')
+                                : (s.localization ? (s.localization.split(',').find(x => x.includes('Полушарие'))?.replace('Полушарие:', '').trim() || '—') : '—')}"
+                           id="input-hemisphere-${s.id}">
+                    <input type="checkbox" id="check-hemisphere-${s.id}" title="Подтвердить" style="width:24px; height:24px; cursor:pointer; accent-color: #2563eb;" ${s.is_verified ? 'checked' : ''}>
+                  </div>
+                </div>
+
+                <!-- Поле 4.2: Отдел -->
+                <div style="margin-bottom:16px;">
+                  <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Отдел (ИИ)</label>
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" class="input" style="flex:1;"
+                           value="${s.is_verified
+                                ? (s.verified_data.localization ? (s.verified_data.localization.split(',').find(x => x.includes('Отдел'))?.replace('Отдел:', '').trim() || '—') : '—')
+                                : (s.localization ? (s.localization.split(',').find(x => x.includes('Отдел'))?.replace('Отдел:', '').trim() || '—') : '—')}"
+                           id="input-department-${s.id}">
+                    <input type="checkbox" id="check-department-${s.id}" title="Подтвердить" style="width:24px; height:24px; cursor:pointer; accent-color: #2563eb;" ${s.is_verified ? 'checked' : ''}>
                   </div>
                 </div>
 
                 <button class="btn btn--primary" style="width:100%;margin-top:8px;" onclick="saveVerification('${s.id}')">Сохранить проверку</button>
-                                <p id="verify-status-${s.id}" style="color:var(--coral); font-size:13px; margin-top:8px; text-align:center; min-height:18px;"></p>
+                <p id="verify-status-${s.id}" style="color:var(--coral); font-size:13px; margin-top:8px; text-align:center; min-height:18px;"></p>
+                <!-- Блок заключения (изначально скрыт) -->
+                <div id="report-block-${s.id}" style="display:none; margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+                  <h4 style="margin-bottom:8px;font-size:14px;font-weight:600;">Заключение врача</h4>
+                  <textarea class="input" id="report-text-${s.id}" style="width:100%; height:150px; font-family:monospace; font-size:12px; margin-bottom:8px;">${generateReportText(s)}</textarea>
+                  <button class="btn btn--primary" style="width:100%;" onclick="exportToWord('${s.id}')">Скачать в Word (.doc)</button>
+                </div>
               </div>
-
-            </div>
           ` : `
             <!-- Если анализа НЕТ, показываем просто оригинал и кнопку -->
             <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:12px;">
@@ -804,9 +839,9 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (annotationJson) {
+        // Защита от null и не-строк
+        if (annotationJson && typeof annotationJson === 'string') {
             try {
-                // На случай, если в JSON попали HTML-сущности
                 const cleanJson = annotationJson.replace(/&quot;/g, '"');
                 const polygons = JSON.parse(cleanJson);
 
@@ -858,31 +893,176 @@
   }
 
     // === ПРОВЕРКА КОРРЕКТНОСТИ ДАННЫХ ===
-  function saveVerification(studyId) {
-    // Получаем все три галочки
+      // === ПРОВЕРКА КОРРЕКТНОСТИ ДАННЫХ ===
+    async function saveVerification(studyId) {
+    // Теперь у нас 5 галочек вместо 4 (добавились полушарие и отдел)
     const checkType = document.getElementById(`check-type-${studyId}`);
     const checkProj = document.getElementById(`check-proj-${studyId}`);
-    const checkLoc = document.getElementById(`check-loc-${studyId}`);
+    const checkArea = document.getElementById(`check-area-${studyId}`);
+    const checkHemi = document.getElementById(`check-hemisphere-${studyId}`);
+    const checkDept = document.getElementById(`check-department-${studyId}`);
 
-    // Получаем элемент для вывода текста
     const statusEl = document.getElementById(`verify-status-${studyId}`);
-
-    // Очищаем предыдущее сообщение
     statusEl.textContent = "";
 
-    // Проверяем, что все они существуют и нажаты
-    if (!checkType.checked || !checkProj.checked || !checkLoc.checked) {
-      statusEl.textContent = "Пожалуйста, подтвердите все данные (поставьте все галочки).";
-      return; // Останавливаем выполнение
+    // Проверяем ВСЕ галочки
+    if (!checkType.checked || !checkProj.checked || !checkArea.checked || !checkHemi.checked || !checkDept.checked) {
+      statusEl.textContent = "Пожалуйста, подтвердите все данные (все галочки).";
+      statusEl.style.color = "var(--coral)";
+      return;
     }
 
-    // Если все галочки стоят:
-    statusEl.style.color = "var(--success)"; // Меняем цвет на зеленый
-    statusEl.textContent = "Все данные успешно подтверждены!";
+    statusEl.style.color = "var(--text-secondary)";
+    statusEl.textContent = "Сохранение...";
 
-    // В будущем здесь будет код для сохранения данных в БД
+    // Собираем исправленные данные из инпутов
+    const hemiValue = document.getElementById(`input-hemisphere-${studyId}`).value;
+    const deptValue = document.getElementById(`input-department-${studyId}`).value;
+
+    // Склеиваем обратно в строку для БД (чтобы не ломать старую логику)
+    let locString = "";
+    if (hemiValue && hemiValue !== "—") locString += `Полушарие: ${hemiValue}`;
+    if (deptValue && deptValue !== "—") {
+        if (locString) locString += ", ";
+        locString += `Отдел: ${deptValue}`;
+    }
+    if (!locString) locString = "Не определена";
+
+    const payload = {
+        verified_prediction: document.getElementById(`input-type-${studyId}`).value,
+        verified_orientation: document.getElementById(`input-proj-${studyId}`).value,
+        verified_area_pct: document.getElementById(`input-area-${studyId}`).value,
+        verified_localization: locString
+    };
+
+    try {
+        const res = await fetch(`${API_URL}/studies/${studyId}/verify`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Ошибка сохранения");
+
+        statusEl.style.color = "var(--success)";
+        statusEl.textContent = "Все данные подтверждены! Формируем заключение...";
+
+        document.getElementById(`report-block-${studyId}`).style.display = "block";
+
+    } catch (err) {
+        statusEl.style.color = "var(--coral)";
+        statusEl.textContent = `Ошибка: ${err.message}`;
+    }
   }
 
-  init();
+    // Генерация текста заключения (по образцу из test_local_pipeline)
+      function generateReportText(s) {
+    const isVerified = s.is_verified;
+    const pred = isVerified ? s.verified_data.prediction : humanPrediction(s.prediction);
+    const orient = isVerified ? s.verified_data.orientation : (s.slice_orientation || '—');
+    const area = isVerified ? s.verified_data.area_pct : (s.area_pct != null ? s.area_pct : '—');
+    const loc = isVerified ? s.verified_data.localization : s.localization;
+
+    // Защита от null
+    const safeLoc = loc ? loc.replace('Полушарие:', '\n  * Полушарие:').replace('Отдел:', '\n  * Отдел:') : '—';
+
+    return `ПРОТОКОЛ ЛУЧЕВОЙ ДИАГНОСТИКИ (ИИ-АНАЛИЗ МРТ)
+Пациент: ${patientCache.full_name} (ID: ${patientCache.anonymized_code})
+Дата: ${formatDateTime(s.created_at)}
+Плоскость: ${orient}
+
+1. ОПИСАТЕЛЬНАЯ ЧАСТЬ:
+- Наличие очага: ${area != '—' && parseFloat(area) > 0.5 ? "выявлен" : "не выявлен"}
+- Площадь поражения: ${area}
+- Локализация: ${safeLoc}
+
+2. ЗАКЛЮЧЕНИЕ:
+${pred}. Уверенность модели: ${Math.round((s.confidence || 0) * 100)}%.
+
+3. РЕКОМЕНДАЦИИ:
+- Требуется консультация врача-невролога.
+- Результат не является окончательным диагнозом.`;
+  }
+
+    // Экспорт в PDF (через печать браузера)
+      function exportToPDF(studyId) {
+    const text = document.getElementById(`report-text-${studyId}`).value;
+
+    // Заменяем переносы строк на HTML-теги <br>, чтобы текст не слипался в PDF
+    const formattedText = text.replace(/\n/g, '<br>');
+
+    // Создаем контейнер
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="font-family: 'Times New Roman', serif; padding: 20px; font-size: 14px; line-height: 1.5; color: black; background: white;">
+        ${formattedText}
+      </div>
+    `;
+
+    // Настройки генерации
+    const opt = {
+      margin:       15,
+      filename:     `Заключение_${patientCache.anonymized_code}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // ВАЖНО: добавляем элемент в DOM скрытым, чтобы html2canvas мог его прочитать
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    document.body.appendChild(element);
+
+    // Запускаем скачивание и удаляем элемент после завершения
+    html2pdf().set(opt).from(element).save().then(() => {
+        document.body.removeChild(element);
+    });
+  }
+
+    // Экспорт в Word (.doc)
+  function exportToWord(studyId) {
+    const text = document.getElementById(`report-text-${studyId}`).value;
+
+    // Заменяем переносы строк на <br>, чтобы Word их понял
+    const formattedText = text.replace(/\n/g, '<br>');
+
+    // Создаем HTML-структуру документа Word
+    const htmlContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head>
+        <meta charset="utf-8">
+        <title>Заключение</title>
+        <style>
+          body { font-family: 'Times New Roman', serif; font-size: 14pt; }
+          p { margin: 0; padding: 0; }
+        </style>
+      </head>
+      <body>
+        <p>${formattedText}</p>
+      </body>
+      </html>
+    `;
+
+    // Кодируем в UTF-8 (добавляем BOM, чтобы Word точно понял кодировку)
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+
+    // Создаем ссылку для скачивания
+    const element = document.createElement('a');
+    element.href = url;
+    element.download = `Заключение_${patientCache.anonymized_code}.doc`;
+
+    document.body.appendChild(element);
+    element.click();
+
+    // Очищаем память
+    document.body.removeChild(element);
+    URL.revokeObjectURL(url);
+  }
+
+    init();
 </script>
 {% endblock %}

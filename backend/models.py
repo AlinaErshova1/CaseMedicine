@@ -109,6 +109,18 @@ class Study(Base):
 
     prediction = Column(String, nullable=True)   # glioma / meningioma / pituitary / no_tumor
     confidence = Column(Float, nullable=True)
+
+    area_pct = Column(Float, nullable=True)
+    localization = Column(String, nullable=True)
+
+    verified_prediction = Column(String, nullable=True)
+    verified_orientation = Column(String, nullable=True)
+    verified_area_pct = Column(String, nullable=True)
+    verified_localization = Column(String, nullable=True)
+    is_verified = Column(Boolean, default=False)
+    verified_at = Column(DateTime, nullable=True)
+    verified_by = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=True)
+
     status = Column(String, default="pending")
     slice_orientation = Column(String, nullable=True) # axial, coronal, sagittal
 
