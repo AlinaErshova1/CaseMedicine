@@ -122,9 +122,7 @@ def analyze_mri_pipeline(image_path: str, results_dir: Path) -> dict:
         results["orientation"] = _orient_meta[pred_idx]
         results["orientation_confidence"] = float(probs[pred_idx])
 
-    # ==========================================
-    # ШАГ 2: КЛАССИФИКАЦИЯ ОПУХОЛИ (EfficientNet)
-    # ==========================================
+
     if _tumor_model is not None:
         transform = get_val_transforms(_tumor_img_size)
         tensor = transform(image=img_rgb)["image"].unsqueeze(0).to(DEVICE)

@@ -60,7 +60,6 @@ def test_local_pipeline():
     results_dir = Path("checkpoints/test_output")
 
     try:
-        # 1. Запускаем единый пайплайн анализа
         result = analyze_mri_pipeline(str(image_path), results_dir)
 
         # 2. Форматируем результат в официальное медицинское заключение

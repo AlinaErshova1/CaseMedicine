@@ -784,4 +784,4 @@ def create_new_patient(
         "anonymized_code": patient.anonymized_code,
         "full_name": payload.full_name,
     }
-# end
+# en
