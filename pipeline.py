@@ -122,7 +122,9 @@ def analyze_mri_pipeline(image_path: str, results_dir: Path) -> dict:
         results["orientation"] = _orient_meta[pred_idx]
         results["orientation_confidence"] = float(probs[pred_idx])
 
-
+    # ==========================================
+    # ШАГ 2: КЛАССИФИКАЦИЯ ОПУХОЛИ (EfficientNet)
+    # ==========================================
     if _tumor_model is not None:
         transform = get_val_transforms(_tumor_img_size)
         tensor = transform(image=img_rgb)["image"].unsqueeze(0).to(DEVICE)
@@ -134,18 +136,26 @@ def analyze_mri_pipeline(image_path: str, results_dir: Path) -> dict:
         results["prediction"] = _tumor_classes[pred_idx]
         results["confidence"] = float(probs[pred_idx])
 
-        # Grad-CAM визуализация для классификатора
-        try:
-            target_layer = [m for m in reversed(list(_tumor_model.modules())) if isinstance(m, torch.nn.Conv2d)][0]
-            cam = GradCAM(_tumor_model, target_layer)
-            heatmap, _, _ = cam.generate(tensor, target_class=pred_idx)
-            overlay = overlay_heatmap(img_rgb, heatmap, alpha=0.45)
+        # Если опухоль НЕ обнаружена, не делаем Grad-CAM.
+        # Просто сохраняем оригинал как результат.
+        if results["prediction"] == "notumor":
+            # Копируем оригинал в папку processed
+            no_tumor_path = results_dir / f"no_tumor_{file_uid}.png"
+            Image.fromarray(img_rgb).save(no_tumor_path)
+            results["result_path"] = str(no_tumor_path)
+        else:
+            # Grad-CAM визуализация для классификатора (только если есть опухоль)
+            try:
+                target_layer = [m for m in reversed(list(_tumor_model.modules())) if isinstance(m, torch.nn.Conv2d)][0]
+                cam = GradCAM(_tumor_model, target_layer)
+                heatmap, _, _ = cam.generate(tensor, target_class=pred_idx)
+                overlay = overlay_heatmap(img_rgb, heatmap, alpha=0.45)
 
-            cls_res_path = results_dir / f"cls_{file_uid}.png"
-            Image.fromarray(overlay).save(cls_res_path)
-            results["result_path"] = str(cls_res_path)
-        except Exception as e:
-            print(f"[Pipeline Warning] Ошибка генерации Grad-CAM: {e}")
+                cls_res_path = results_dir / f"cls_{file_uid}.png"
+                Image.fromarray(overlay).save(cls_res_path)
+                results["result_path"] = str(cls_res_path)
+            except Exception as e:
+                print(f"[Pipeline Warning] Ошибка генерации Grad-CAM: {e}")
 
     # ==========================================
     # ШАГ 3: СЕГМЕНТАЦИЯ (U-Net) И ЭВРИСТИКА ЛОКАЛИЗАЦИИ
