@@ -58,217 +58,128 @@ DOCTORS = [
 # ============================================================
 # ПАЦИЕНТЫ
 # ============================================================
-PATIENTS = [
+PATIENTS =  [
     {
-        "full_name": "Болконская Наталья Ростовна",
-        "sex": "F",
-        "birth_date": date(1998, 8, 23),
-        "phone": "+7 (916) 222-33-44",
-        "email": "natasha.bolkonskaya@mail.ru",
-        "address": "г. Москва, ул. Пречистенка, д. 8, кв. 12",
-        "policy_oms": "7712 345 678 902",
-        "blood_type": "I (0) Rh+",
-        "height_cm": 165,
-        "weight_kg": 55,
-        "reason": "Головокружения после перенесённой простуды",
-        "complaints": "Слабость, утомляемость",
-        "allergies": "Пыльца берёзы",
+      "full_name": "Сато Кэнтаро",
+      "sex": "M",
+      "birth_date": "1996-05-14",
+      "phone": "+7 (911) 401-12-34",
+      "email": "postman.cabbage@mail.ru",
+      "address": "г. Москва, ул. Почтовая, д. 14, кв. 3",
+      "policy_oms": "7712 401 123 401",
+      "blood_type": "II (A) Rh+",
+      "height_cm": 174,
+      "weight_kg": 62,
+      "reason": "Длительные непрекращающиеся головные боли и эпизод потери сознания на рабочем месте",
+      "complaints": "Распирающая головная боль, двоение в глазах, тошнота, субфебрильная температура, выраженная слабость",
+      "allergies": "Не выявлено"
     },
     {
-        "full_name": "Печорин Григорий Александрович",
-        "sex": "M",
-        "birth_date": date(1992, 3, 15),
-        "phone": "+7 (903) 333-44-55",
-        "email": "pechorin.g@mail.ru",
-        "address": "г. Пятигорск, ул. Лермонтова, д. 5, кв. 7",
-        "policy_oms": "2612 345 678 903",
-        "blood_type": "III (B) Rh+",
-        "height_cm": 185,
-        "weight_kg": 78,
-        "reason": "Мигрени с аурой, участившиеся приступы",
-        "complaints": "Головные боли в височной области, тошнота",
-        "allergies": "Не выявлено",
+      "full_name": "Монро Ив",
+      "sex": "F",
+      "birth_date": "1974-12-12",
+      "phone": "+7 (916) 402-23-45",
+      "email": "eve.monroe.author@mail.ru",
+      "address": "г. Москва, Патриарший пер., д. 6, кв. 19",
+      "policy_oms": "7712 402 234 502",
+      "blood_type": "I (0) Rh+",
+      "height_cm": 168,
+      "weight_kg": 58,
+      "reason": "Внезапный приступ судорог и острая дезориентация во времени и пространстве",
+      "complaints": "Провалы в памяти, спутанность речи, быстрая утомляемость, трудности с концентрацией внимания",
+      "allergies": "Пенициллин"
     },
     {
-        "full_name": "Онегин Евгений Александрович",
+      "full_name": "Кранц Чарльз",
+      "sex": "M",
+      "birth_date": "1987-09-21",
+      "phone": "+7 (903) 403-34-56",
+      "email": "chuck.krantz39@mail.ru",
+      "address": "г. Санкт-Петербург, наб. реки Фонтанки, д. 42, кв. 8",
+      "policy_oms": "7812 403 345 603",
+      "blood_type": "III (B) Rh+",
+      "height_cm": 180,
+      "weight_kg": 76,
+      "reason": "Учащающиеся приступы сильных головных болей и эпизоды спутанности сознания",
+      "complaints": "Выраженная астения, нарушение координации движений, шаткость походки, головные боли",
+      "allergies": "Не выявлено"
+    },
+    {
+      "full_name": "Халлинг Фредерик",
+      "sex": "M",
+      "birth_date": "1978-04-03",
+      "phone": "+7 (921) 404-45-67",
+      "email": "f.halling.school@mail.ru",
+      "address": "г. Санкт-Петербург, Большой пр. П.С., д. 58, кв. 14",
+      "policy_oms": "7812 404 456 704",
+      "blood_type": "IV (AB) Rh-",
+      "height_cm": 184,
+      "weight_kg": 82,
+      "reason": "Резкое изменение поведения, импульсивность и когнитивные нарушения, замеченные семьёй",
+      "complaints": "Снижение критики к собственному поведению, вспышки раздражительности, периодические головные боли",
+      "allergies": "Пыльца злаковых трав"
+    },
+    {
+      "full_name": "Барнс Дженнифер",
+      "sex": "F",
+      "birth_date": "1978-06-17",
+      "phone": "+7 (915) 405-56-78",
+      "email": "jennifer.barnes@mail.ru",
+      "address": "г. Москва, ул. Остоженка, д. 25, кв. 11",
+      "policy_oms": "7712 405 567 805",
+      "blood_type": "II (A) Rh-",
+      "height_cm": 167,
+      "weight_kg": 61,
+      "reason": "Внезапные эпизоды потери равновесия и ухудшение самочувствия неясного генеза",
+      "complaints": "Сильные головные боли, выраженное головокружение, тошнота, общая слабость",
+      "allergies": "Лидокаин"
+    },
+    {
+      "full_name": "Квентин Дэниел",
+      "sex": "M",
+      "birth_date": "2009-07-08",
+      "phone": "+7 (926) 406-67-89",
+      "email": "dq.warrior@mail.ru",
+      "address": "г. Москва, ул. Малая Бронная, д. 12, кв. 5",
+      "policy_oms": "7712 406 678 906",
+      "blood_type": "I (0) Rh-",
+      "height_cm": 172,
+      "weight_kg": 54,
+      "reason": "Прогрессирующая слабость в нижних конечностях и интенсивные головные боли",
+      "complaints": "Нарушение опорно-двигательной функции (передвигается в кресле-коляске), тошнота, утомляемость",
+      "allergies": "Цитрусовые"
+    },
+    {
+      "full_name": "Картер Уильям",
+      "sex": "M",
+      "birth_date": "1991-11-02",
+      "phone": "+7 (905) 407-78-90",
+      "email": "will.carter.uk@mail.ru",
+      "address": "г. Москва, ул. Тверская, д. 19, кв. 31",
+      "policy_oms": "7712 407 789 007",
+      "blood_type": "III (B) Rh-",
+      "height_cm": 182,
+      "weight_kg": 79,
+
+        "reason": "Острые приступы головокружения, расстройство памяти и эпизоды дезориентации",
+        "complaints": "Провалы в памяти, интенсивные головные боли, повышенная тревожность",
+        "allergies": "Не выявлено"
+    },
+    {
+        "full_name": "Самойлов Глеб Игоревич",
         "sex": "M",
-        "birth_date": date(1990, 1, 9),
-        "phone": "+7 (911) 444-55-66",
-        "email": "onegin@mail.ru",
-        "address": "г. Санкт-Петербург, наб. реки Мойки, д. 12, кв. 3",
-        "policy_oms": "7811 234 567 904",
-        "blood_type": "IV (AB) Rh-",
+        "birth_date": "2001-02-19",
+        "phone": "+7 (916) 408-89-01",
+        "email": "gleb.drumir@mail.ru",
+        "address": "г. Москва, Ленинградский пр-т, д. 37, кв. 44",
+        "policy_oms": "7712 408 890 108",
+        "blood_type": "II (A) Rh+",
         "height_cm": 178,
-        "weight_kg": 74,
-        "reason": "Плановое обследование, хандра",
-        "complaints": "Апатия, снижение интереса",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Ларина Татьяна Дмитриевна",
-        "sex": "F",
-        "birth_date": date(1997, 1, 25),
-        "phone": "+7 (916) 555-66-77",
-        "email": "tatyana.larina@mail.ru",
-        "address": "г. Москва, ул. Онегина, д. 3, кв. 1",
-        "policy_oms": "7712 345 678 905",
-        "blood_type": "II (A) Rh+",
-        "height_cm": 168,
-        "weight_kg": 58,
-        "reason": "Обращение по поводу частых головных болей",
-        "complaints": "Головные боли при стрессе",
-        "allergies": "Цитрусовые",
-    },
-    {
-        "full_name": "Гринёв Пётр Андреевич",
-        "sex": "M",
-        "birth_date": date(2001, 5, 14),
-        "phone": "+7 (926) 666-77-88",
-        "email": "grinev.petr@mail.ru",
-        "address": "г. Оренбург, ул. Белогорская, д. 1, кв. 8",
-        "policy_oms": "5612 345 678 906",
-        "blood_type": "I (0) Rh+",
-        "height_cm": 176,
-        "weight_kg": 70,
-        "reason": "Направление после спортивной травмы",
-        "complaints": "Периодические головокружения",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Мария Миронова (капитанская дочка)",
-        "sex": "F",
-        "birth_date": date(2002, 11, 2),
-        "phone": "+7 (926) 777-88-99",
-        "email": "maria.mironova@mail.ru",
-        "address": "г. Оренбург, ул. Крепостная, д. 7, кв. 2",
-        "policy_oms": "5612 345 678 907",
-        "blood_type": "III (B) Rh+",
-        "height_cm": 162,
-        "weight_kg": 52,
-        "reason": "Профилактический осмотр",
-        "complaints": "Жалоб нет",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Чичиков Павел Иванович",
-        "sex": "M",
-        "birth_date": date(1985, 4, 20),
-        "phone": "+7 (985) 888-99-00",
-        "email": "chichikov.pavel@mail.ru",
-        "address": "г. Москва, ул. Маниловская, д. 4, кв. 15",
-        "policy_oms": "7712 345 678 908",
-        "blood_type": "II (A) Rh-",
-        "height_cm": 170,
-        "weight_kg": 82,
-        "reason": "Обращение по поводу головных болей напряжения",
-        "complaints": "Стресс, усталость",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Обломов Илья Ильич",
-        "sex": "M",
-        "birth_date": date(1980, 6, 30),
-        "phone": "+7 (985) 999-00-11",
-        "email": "oblomov.ii@mail.ru",
-        "address": "г. Санкт-Петербург, ул. Гороховая, д. 12, кв. 4",
-        "policy_oms": "7811 234 567 909",
-        "blood_type": "I (0) Rh+",
-        "height_cm": 175,
-        "weight_kg": 95,
-        "reason": "Обследование по поводу апатии",
-        "complaints": "Постоянная усталость, сонливость",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Штольц Андрей Иванович",
-        "sex": "M",
-        "birth_date": date(1978, 9, 12),
-        "phone": "+7 (985) 000-11-22",
-        "email": "shtolz@mail.ru",
-        "address": "г. Санкт-Петербург, Невский пр., д. 100, кв. 10",
-        "policy_oms": "7811 234 567 910",
-        "blood_type": "III (B) Rh+",
-        "height_cm": 180,
-        "weight_kg": 76,
-        "reason": "Плановое обследование",
-        "complaints": "Жалоб нет",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Каренина Анна Аркадьевна",
-        "sex": "F",
-        "birth_date": date(1988, 12, 5),
-        "phone": "+7 (903) 111-22-33",
-        "email": "anna.karenina@mail.ru",
-        "address": "г. Москва, ул. Вознесенская, д. 5, кв. 3",
-        "policy_oms": "7712 345 678 911",
-        "blood_type": "II (A) Rh+",
-        "height_cm": 170,
-        "weight_kg": 60,
-        "reason": "Периодические головные боли на фоне стресса",
-        "complaints": "Бессонница, тревожность",
-        "allergies": "Лаванда",
-    },
-    {
-        "full_name": "Левин Константин Дмитриевич",
-        "sex": "M",
-        "birth_date": date(1985, 3, 18),
-        "phone": "+7 (903) 222-33-44",
-        "email": "levin.kd@mail.ru",
-        "address": "г. Москва, ул. Покровская, д. 8, кв. 2",
-        "policy_oms": "7712 345 678 912",
-        "blood_type": "IV (AB) Rh+",
-        "height_cm": 182,
-        "weight_kg": 80,
-        "reason": "Обращение по поводу головных болей",
-        "complaints": "Периодические мигрени",
-        "allergies": "Мёд",
-    },
-    {
-        "full_name": "Вронский Алексей Кириллович",
-        "sex": "M",
-        "birth_date": date(1986, 8, 25),
-        "phone": "+7 (903) 333-44-55",
-        "email": "vronsky.ak@mail.ru",
-        "address": "г. Москва, ул. Тверская, д. 15, кв. 7",
-        "policy_oms": "7712 345 678 913",
-        "blood_type": "I (0) Rh+",
-        "height_cm": 187,
-        "weight_kg": 85,
-        "reason": "Спортивная травма головы",
-        "complaints": "Головокружения после падения",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Облонский Степан Аркадьевич",
-        "sex": "M",
-        "birth_date": date(1983, 10, 8),
-        "phone": "+7 (903) 444-55-66",
-        "email": "stiva@mail.ru",
-        "address": "г. Москва, ул. Пречистенка, д. 21, кв. 4",
-        "policy_oms": "7712 345 678 914",
-        "blood_type": "II (A) Rh+",
-        "height_cm": 179,
-        "weight_kg": 88,
-        "reason": "Головные боли после застолий",
-        "complaints": "Утренние головные боли",
-        "allergies": "Не выявлено",
-    },
-    {
-        "full_name": "Дарья Александровна Облонская",
-        "sex": "F",
-        "birth_date": date(1985, 7, 14),
-        "phone": "+7 (903) 555-66-77",
-        "email": "dolly@mail.ru",
-        "address": "г. Москва, ул. Пречистенка, д. 21, кв. 4",
-        "policy_oms": "7712 345 678 915",
-        "blood_type": "III (B) Rh+",
-        "height_cm": 165,
-        "weight_kg": 62,
-        "reason": "Частые головные боли",
-        "complaints": "Мигрени, усталость",
-        "allergies": "Шоколад",
-    },
+        "weight_kg": 66,
+        "reason": "Некупируемые головные боли и нарастающее угнетение сознания",
+        "complaints": "Интенсивная головная боль, выраженная кахексия, заторможенность, кратковременные потери сознания",
+        "allergies": "Не выявлено"
+    }
 ]
 
 
@@ -276,47 +187,45 @@ PATIENTS = [
 # ЗАПОЛНЕНИЕ
 # ============================================================
 print("=" * 60)
-print("Создание врачей...")
+print("Проверка и создание пациентов...")
 print("=" * 60)
 
-created_doctors = []
-for d in DOCTORS:
-    # Проверяем, нет ли уже такого логина
-    existing = db.query(Doctor).filter(Doctor.login == d["login"]).first()
-    if existing:
-        print(f"  ⏭  {d['full_name']} (логин {d['login']}) — уже существует")
-        created_doctors.append(existing)
-        continue
+from security import decrypt_field
 
-    doctor = Doctor(
-        full_name=d["full_name"],
-        login=d["login"],
-        password_hash=hash_password(d["password"]),
-        specialty=d["specialty"],
-        hospital=d["hospital"],
-        is_active=True,
-    )
-    db.add(doctor)
-    db.commit()
-    db.refresh(doctor)
-    created_doctors.append(doctor)
-    print(f"  ✅ {d['full_name']} ({d['specialty']})")
+# Получаем всех существующих врачей из базы (чтобы к ним привязать пациентов)
+db_doctors = db.query(Doctor).all()
+if not db_doctors:
+    print("❌ Ошибка: В базе нет врачей! Сначала создайте хотя бы одного врача.")
+    db.close()
+    sys.exit(1)
 
+# Собираем ФИО существующих пациентов (расшифровываем), чтобы не создавать дубликаты
+existing_patients_names = set()
+all_patients = db.query(Patient).all()
+for p in all_patients:
+    existing_patients_names.add(decrypt_field(p.full_name_encrypted))
 
-print()
-print("=" * 60)
-print("Создание пациентов...")
-print("=" * 60)
+created_count = 0
+skipped_count = 0
 
 # Распределяем пациентов по врачам (по кругу)
 for i, p in enumerate(PATIENTS):
-    doctor = created_doctors[i % len(created_doctors)]
+    # Проверка на дубликат
+    if p["full_name"] in existing_patients_names:
+        print(f"  ⏭  {p['full_name']} — уже существует в базе")
+        skipped_count += 1
+        continue
+
+    doctor = db_doctors[i % len(db_doctors)]
+
+    # Преобразуем строку даты в объект date
+    birth_date = datetime.strptime(p["birth_date"], "%Y-%m-%d").date()
 
     patient = create_patient(
         db,
         full_name=p["full_name"],
         sex=p["sex"],
-        birth_date=p["birth_date"],
+        birth_date=birth_date,
         doctor_id=str(doctor.id),
         attending_doctor_id=str(doctor.id),
         phone=p["phone"],
@@ -331,15 +240,11 @@ for i, p in enumerate(PATIENTS):
         allergies=p["allergies"],
     )
     print(f"  ✅ {p['full_name']} → врач {doctor.full_name}")
-
+    created_count += 1
 
 print()
 print("=" * 60)
-print(f"ГОТОВО! Создано врачей: {len(created_doctors)}, пациентов: {len(PATIENTS)}")
+print(f"ГОТОВО! Создано новых пациентов: {created_count}. Пропущено (уже были): {skipped_count}")
 print("=" * 60)
-print()
-print("Логины врачей (пароль у всех: doctor123):")
-for d in DOCTORS:
-    print(f"  {d['login']:15} — {d['full_name']} ({d['specialty']})")
 
 db.close()
